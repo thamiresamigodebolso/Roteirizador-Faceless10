@@ -215,21 +215,22 @@ Gerar prompts de imagem: ${generatePrompts ? "Sim" : "Não"}.`;
 
 // Setup Vite Dev Server / Static files middleware
 async function startServer() {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV === "production") {
+    // In production, server.cjs is in dist/, so index.html is in the same folder
+    const distPath = __dirname;
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  } else {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
   }
 
-  app.listen(Number(PORT), "0.0.0.0", () => {
+  app.listen(Number(PORT), () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
