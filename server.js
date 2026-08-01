@@ -1,5 +1,11 @@
 /**
- * Arquivo de entrada para compatibilidade com Hostinger e outros serviços de hospedagem
- * Este arquivo apenas carrega o servidor compilado da pasta dist.
+ * Arquivo de entrada para compatibilidade com Hostinger e outros serviços de hospedagem.
+ * Este arquivo carrega o servidor compilado e garante que variáveis de ambiente sejam respeitadas.
  */
-require('./dist/server.cjs');
+try {
+  console.log("Iniciando servidor via server.js...");
+  require('./dist/server.cjs');
+} catch (error) {
+  console.error("Erro fatal ao iniciar o servidor:", error);
+  process.exit(1);
+}
