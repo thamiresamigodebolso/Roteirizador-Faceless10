@@ -170,7 +170,7 @@ Duração solicitada: ${durationMin} minutos (alvo de aproximadamente ${targetWo
 Gerar prompts de imagem: ${generatePrompts ? "Sim" : "Não"}.`;
 
     const response = await clientToUse.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: "gemini-2.0-flash",
       contents: userPrompt,
       config: {
         systemInstruction,
