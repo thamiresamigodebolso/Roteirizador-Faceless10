@@ -1,0 +1,6 @@
+{
+  "name": "Roteirizador Faceless",
+  "description": "Gerador de roteiros profissionais com gancho de mistério e revelação no final para canais faceless (YouTube, Facebook, Instagram, TikTok) integrado com busca factual em tempo real.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
