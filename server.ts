@@ -243,8 +243,9 @@ async function startServer() {
     app.use(vite.middlewares);
   }
 
-  app.listen(Number(PORT), () => {
-    console.log(`Server running on port ${PORT}`);
+  const listenPort = isNaN(Number(PORT)) ? PORT : Number(PORT);
+  app.listen(listenPort, () => {
+    console.log(`Server running on port ${listenPort}`);
   });
 }
 

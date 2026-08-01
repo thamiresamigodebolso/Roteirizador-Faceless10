@@ -1,0 +1,246 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+
+// server.ts
+var import_express = __toESM(require("express"), 1);
+var import_path = __toESM(require("path"), 1);
+var import_genai = require("@google/genai");
+var import_dotenv = __toESM(require("dotenv"), 1);
+import_dotenv.default.config();
+var app = (0, import_express.default)();
+var PORT = process.env.PORT || 3e3;
+console.log(`[Server] Configurando rotas... PORT=${PORT}`);
+app.use(import_express.default.json());
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+    env: process.env.NODE_ENV,
+    hasGeminiKey: !!process.env.GEMINI_API_KEY
+  });
+});
+var ai = new import_genai.GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  httpOptions: {
+    headers: {
+      "User-Agent": "aistudio-build"
+    }
+  }
+});
+var scriptResponseSchema = {
+  type: import_genai.Type.OBJECT,
+  properties: {
+    meta: {
+      type: import_genai.Type.OBJECT,
+      properties: {
+        titulo_principal: { type: import_genai.Type.STRING },
+        categoria: { type: import_genai.Type.STRING },
+        duracao_solicitada_min: { type: import_genai.Type.INTEGER },
+        contagem_palavras_alvo: { type: import_genai.Type.INTEGER },
+        contagem_palavras_real: { type: import_genai.Type.INTEGER },
+        idioma: { type: import_genai.Type.STRING }
+      },
+      required: ["titulo_principal", "categoria", "duracao_solicitada_min", "contagem_palavras_alvo", "contagem_palavras_real", "idioma"]
+    },
+    roteiro: {
+      type: import_genai.Type.ARRAY,
+      items: {
+        type: import_genai.Type.OBJECT,
+        properties: {
+          bloco: { type: import_genai.Type.STRING },
+          // 'gancho' | 'contexto' | 'desenvolvimento' | 'revelacao' | 'fechamento'
+          tempo_inicio_seg: { type: import_genai.Type.INTEGER },
+          tempo_fim_seg: { type: import_genai.Type.INTEGER },
+          texto_narracao: { type: import_genai.Type.STRING }
+        },
+        required: ["bloco", "tempo_inicio_seg", "tempo_fim_seg", "texto_narracao"]
+      }
+    },
+    fatos_apurados: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    fatos_nao_confirmados: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    fontes_utilizadas: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    prompts_imagem: {
+      type: import_genai.Type.ARRAY,
+      items: {
+        type: import_genai.Type.OBJECT,
+        properties: {
+          momento_do_video: { type: import_genai.Type.STRING },
+          prompt: { type: import_genai.Type.STRING }
+        },
+        required: ["momento_do_video", "prompt"]
+      }
+    },
+    metadata_publicacao: {
+      type: import_genai.Type.OBJECT,
+      properties: {
+        titulos_sugeridos_youtube: {
+          type: import_genai.Type.ARRAY,
+          items: { type: import_genai.Type.STRING }
+        },
+        descricao_youtube: { type: import_genai.Type.STRING },
+        legenda_instagram_tiktok: { type: import_genai.Type.STRING },
+        hashtags: {
+          type: import_genai.Type.ARRAY,
+          items: { type: import_genai.Type.STRING }
+        }
+      },
+      required: ["titulos_sugeridos_youtube", "descricao_youtube", "legenda_instagram_tiktok", "hashtags"]
+    }
+  },
+  required: ["meta", "roteiro", "fatos_apurados", "fatos_nao_confirmados", "fontes_utilizadas", "prompts_imagem", "metadata_publicacao"]
+};
+app.post("/api/generate-script", async (req, res) => {
+  try {
+    const { input, duration, generatePrompts, apiKey, style, energy } = req.body;
+    if (!input || typeof input !== "string" || input.trim() === "") {
+      res.status(400).json({ error: "O campo de entrada (link, tema ou texto) \xE9 obrigat\xF3rio." });
+      return;
+    }
+    let clientToUse = ai;
+    const userApiKey = apiKey && typeof apiKey === "string" ? apiKey.trim() : "";
+    if (userApiKey) {
+      clientToUse = new import_genai.GoogleGenAI({
+        apiKey: userApiKey,
+        httpOptions: {
+          headers: {
+            "User-Agent": "aistudio-build"
+          }
+        }
+      });
+    } else if (!process.env.GEMINI_API_KEY) {
+      res.status(400).json({
+        error: "Chave de API do Gemini n\xE3o configurada no servidor. Por favor, insira sua chave pessoal no painel lateral do aplicativo."
+      });
+      return;
+    }
+    const durationMin = Math.max(1, Math.min(20, Number(duration) || 3));
+    const targetWordCount = durationMin * 155;
+    const systemInstruction = `Voc\xEA \xE9 o motor de roteiriza\xE7\xE3o de um canal de not\xEDcias faceless multiplataforma (YouTube, Facebook, Instagram, TikTok). Sua fun\xE7\xE3o \xE9 transformar um link, um texto ou uma informa\xE7\xE3o/tema livre em um roteiro de v\xEDdeo narrado em PORTUGU\xCAS DO BRASIL, pronto para grava\xE7\xE3o, seguindo uma estrutura fixa de "gancho de mist\xE9rio + revela\xE7\xE3o no final".
+
+DIRETRIZES DE ESTILO E ENERGIA (MUITO IMPORTANTE):
+- Estilo do Tema/Conte\xFAdo: ${style || "noticias_faceless"}. Adapte o vocabul\xE1rio, o tom e a profundidade do conte\xFAdo para este nicho espec\xEDfico.
+- Energia do Roteiro: ${energy || "forte"}. Este \xE9 o ritmo da narra\xE7\xE3o. Se for "agressivo", use frases curtas e impacto. Se for "misterioso", use pausas dram\xE1ticas impl\xEDcitas e suspense. Se for "calmo", use um tom mais explicativo e sereno.
+
+INSTRU\xC7\xD5ES DE PESQUISA E APURA\xC7\xC3O:
+- Utilize a pesquisa integrada para buscar mais contexto, atualiza\xE7\xF5es e detalhes sobre o tema.
+- Confirme datas, nomes, n\xFAmeros e declara\xE7\xF5es (n\xE3o invente dados n\xE3o confirmados).
+- Busque rea\xE7\xF5es, desdobramentos ou contexto hist\xF3rico relevante que enrique\xE7a a narrativa, especialmente para roteiros mais longos (8+ min).
+- Se for um tema em tempo real (algo acontecendo agora), priorize as informa\xE7\xF5es mais recentes encontradas.
+- Se a busca n\xE3o trouxer confirma\xE7\xE3o suficiente sobre algum ponto, coloque esse ponto como n\xE3o confirmado no campo 'fatos_nao_confirmados', ao inv\xE9s de apresentar como fato certo no roteiro.
+- Voc\xEA pode dramatizar a FORMA (ordem, suspense, tom), mas NUNCA o conte\xFAdo factual.
+
+ESTRUTURA OBRIGAT\xD3RIA DO ROTEIRO:
+1. Gancho (~8-12% do tempo total): abre com uma pergunta, fato intrigante ou cena de curiosidade, SEM entregar o desfecho. O espectador precisa querer saber o final. Ex: "o que aconteceu depois surpreendeu at\xE9 os especialistas", "ningu\xE9m esperava o que veio a seguir", ancorado na realidade.
+2. Contexto (~15-20%): situa quem, onde, quando, por que importa, segurando a revela\xE7\xE3o central.
+3. Desenvolvimento (a maior parte do v\xEDdeo): constr\xF3i com detalhes, personagens, n\xFAmeros, cronologia, m\xFAltiplos \xE2ngulos. Se for longo (8+ min), aprofunde em antecedentes, consequ\xEAncias, etc.
+4. Revela\xE7\xE3o/virada: perto do final. Cl\xEDmax informativo. O porqu\xEA do gancho.
+5. Fechamento (~5-8%): conclus\xE3o curta, reflex\xE3o, chamada para a\xE7\xE3o (comentar, curtir, seguir). Sem fatos novos.
+
+C\xC1LCULO DE PALAVRAS:
+- Ritmo natural: ~155 palavras por minuto.
+- Dura\xE7\xE3o solicitada: ${durationMin} minutos.
+- Alvo de palavras total: ${targetWordCount} palavras (toler\xE2ncia de \xB110%).
+- Voc\xEA deve preencher o campo 'contagem_palavras_real' com a contagem total real das palavras do seu campo 'texto_narracao' somados em todos os blocos.
+- Distribua esse total proporcionalmente entre os blocos (Gancho ~10%, Contexto ~18%, Desenvolvimento ~60%, Revela\xE7\xE3o ~7%, Fechamento ~5%).
+
+TOM E ESTILO:
+- Portugu\xEAs do Brasil, coloquial-jornal\xEDstico (s\xE9rio para credibilidade, din\xE2mico para prender aten\xE7\xE3o).
+- Frases curtas e diretas, estruturadas para leitura em voz alta.
+- Sem jarg\xF5es t\xE9cnicos n\xE3o explicados. Sem enrola\xE7\xE3o.
+
+PROMPTS DE IMAGEM:
+- Se 'generatePrompts' for falso, retorne a lista 'prompts_imagem' como vazia.
+- Se 'generatePrompts' for verdadeiro, gere aproximadamente 1 prompt a cada 15-20 segundos de v\xEDdeo.
+- Descreva os prompts EM INGL\xCAS. Formato cinematogr\xE1fico: sujeito, a\xE7\xE3o, ambiente, \xE2ngulo, luz, atmosfera, estilo (ex: photorealistic, documentary style, cinematic lighting, dramatic mood).
+- Mantenha consist\xEAncia de personagens e estilo em todos os prompts.
+- Indique no campo 'momento_do_video' o trecho correspondente.`;
+    const userPrompt = `Crie o roteiro completo com base no seguinte input do usu\xE1rio:
+Tema/Not\xEDcia/Link: "${input}"
+Dura\xE7\xE3o solicitada: ${durationMin} minutos (alvo de aproximadamente ${targetWordCount} palavras).
+Gerar prompts de imagem: ${generatePrompts ? "Sim" : "N\xE3o"}.`;
+    const response = await clientToUse.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: userPrompt,
+      config: {
+        systemInstruction,
+        tools: [{ googleSearch: {} }],
+        responseMimeType: "application/json",
+        responseSchema: scriptResponseSchema,
+        temperature: 0.7
+      }
+    });
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("O modelo n\xE3o retornou nenhum texto.");
+    }
+    let parsedData;
+    try {
+      parsedData = JSON.parse(responseText.trim());
+    } catch (parseError) {
+      console.error("Erro ao analisar o JSON retornado pelo modelo:", responseText);
+      throw new Error("Erro de formata\xE7\xE3o na resposta do modelo.");
+    }
+    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    const searchSources = groundingChunks.map((c) => c.web?.uri).filter(Boolean);
+    if (searchSources.length > 0) {
+      const existingSources = new Set(parsedData.fontes_utilizadas || []);
+      searchSources.forEach((src) => existingSources.add(src));
+      parsedData.fontes_utilizadas = Array.from(existingSources);
+    }
+    res.json(parsedData);
+  } catch (error) {
+    console.error("Erro ao processar roteiro:", error);
+    res.status(500).json({ error: error.message || "Ocorreu um erro interno no servidor." });
+  }
+});
+async function startServer() {
+  if (process.env.NODE_ENV === "production") {
+    const distPath = import_path.default.join(process.cwd(), "dist");
+    app.use(import_express.default.static(distPath));
+    app.get("*", (req, res) => {
+      res.sendFile(import_path.default.join(distPath, "index.html"));
+    });
+  } else {
+    const { createServer: createViteServer } = await import("vite");
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa"
+    });
+    app.use(vite.middlewares);
+  }
+  const listenPort = isNaN(Number(PORT)) ? PORT : Number(PORT);
+  app.listen(listenPort, () => {
+    console.log(`Server running on port ${listenPort}`);
+  });
+}
+startServer();
+//# sourceMappingURL=server.cjs.map
