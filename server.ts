@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
 
@@ -9,7 +8,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+console.log(`[Server] Configurando rotas... PORT=${PORT}`);
+
 app.use(express.json());
+
+// Rota de Health Check (útil para verificar se o servidor está vivo na Hostinger)
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV,
+    hasGeminiKey: !!process.env.GEMINI_API_KEY
+  });
+});
 
 // Shared Gemini Client
 const ai = new GoogleGenAI({
@@ -216,13 +227,15 @@ Gerar prompts de imagem: ${generatePrompts ? "Sim" : "Não"}.`;
 // Setup Vite Dev Server / Static files middleware
 async function startServer() {
   if (process.env.NODE_ENV === "production") {
-    // In production, server.cjs is in dist/, so index.html is in the same folder
-    const distPath = __dirname;
+    // Em produção, servimos os arquivos estáticos da pasta dist
+    const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   } else {
+    // Importação dinâmica do Vite apenas em desenvolvimento
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
