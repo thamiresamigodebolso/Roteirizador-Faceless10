@@ -349,6 +349,99 @@ export default function App() {
                   activeId={activeScript?.id}
                 />
               </div>
+
+              {/* Portais de Notícias (Fontes) */}
+              <div className="border-t border-zinc-800 pt-4">
+                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5 flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-orange-500" />
+                  Portais de Notícias (Fontes)
+                </h3>
+                <p className="text-[10px] text-zinc-400 mb-3 leading-relaxed">
+                  Acesse em um clique as tendências e portais locais de Lorena, do Vale do Paraíba, de SP e nacionais para buscar notícias:
+                </p>
+                <div className="grid grid-cols-2 gap-2" id="news-portals-links-grid">
+                  <a
+                    href="https://trends.google.com/trends/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    📈 Google Trends
+                  </a>
+                  <a
+                    href="https://g1.globo.com/sp/vale-do-paraiba-regiao/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    🔴 G1 Vale (Lorena)
+                  </a>
+                  <a
+                    href="http://jornalatos.net/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    📰 Jornal Atos (Lorena)
+                  </a>
+                  <a
+                    href="https://www.ovale.com.br/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    🦅 O Vale
+                  </a>
+                  <a
+                    href="https://g1.globo.com/sp/sao-paulo/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    🌆 G1 São Paulo
+                  </a>
+                  <a
+                    href="https://www.metropoles.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    🔥 Metrópoles
+                  </a>
+                  <a
+                    href="https://noticias.uol.com.br/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    🌐 UOL Notícias
+                  </a>
+                  <a
+                    href="https://www.cnnbrasil.com.br/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    📺 CNN Brasil
+                  </a>
+                  <a
+                    href="https://noticias.r7.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    🔵 R7 Notícias
+                  </a>
+                  <a
+                    href="https://g1.globo.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    🇧🇷 G1 Brasil
+                  </a>
+                </div>
+              </div>
             </motion.div>
           </>
         )}
