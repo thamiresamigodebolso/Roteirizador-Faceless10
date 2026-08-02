@@ -183,6 +183,28 @@ export default function App() {
           </div>
           
           <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-2 mr-2 border-r border-zinc-800 pr-4 hidden md:flex">
+              <a
+                href="https://ai33.pro/app/buy-credits"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-bold text-zinc-300 shadow-sm transition-all"
+                title="Criar Voz (AI33 - ElevenLabs)"
+              >
+                <MessageSquare className="h-3.5 w-3.5 text-indigo-400" />
+                <span>Gerar Voz (AI33)</span>
+              </a>
+              <a
+                href="https://app.heygen.com/home"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-2 bg-zinc-850 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-xl text-xs font-bold text-zinc-300 shadow-sm transition-all"
+                title="Criar Vídeo com HeyGen"
+              >
+                <Play className="h-3.5 w-3.5 text-emerald-450 animate-pulse" />
+                <span>Vídeo (HeyGen)</span>
+              </a>
+            </div>
             {activeScript && (
               <button
                 onClick={() => {
