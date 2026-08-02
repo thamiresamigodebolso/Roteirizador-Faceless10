@@ -440,6 +440,22 @@ export default function App() {
                   >
                     🇧🇷 G1 Brasil
                   </a>
+                  <a
+                    href="https://portalleodias.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    👑 Léo Dias (Fofocas)
+                  </a>
+                  <a
+                    href="https://nacaojuridica.com.br/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    ⚖️ Nação Jurídica
+                  </a>
                 </div>
               </div>
             </motion.div>
