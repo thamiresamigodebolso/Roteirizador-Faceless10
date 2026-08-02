@@ -168,7 +168,7 @@ ESTRUTURA OBRIGAT\xD3RIA DO ROTEIRO:
 2. Contexto (~15-20%): situa quem, onde, quando, por que importa, segurando a revela\xE7\xE3o central.
 3. Desenvolvimento (a maior parte do v\xEDdeo): constr\xF3i com detalhes, personagens, n\xFAmeros, cronologia, m\xFAltiplos \xE2ngulos. Se for longo (8+ min), aprofunde em antecedentes, consequ\xEAncias, etc.
 4. Revela\xE7\xE3o/virada: perto do final. Cl\xEDmax informativo. O porqu\xEA do gancho.
-5. Fechamento (~5-8%): conclus\xE3o curta, reflex\xE3o, chamada para a\xE7\xE3o (comentar, curtir, seguir). Sem fatos novos.
+5. Fechamento (~5-8%): conclus\xE3o curta, reflex\xE3o e uma chamada para a\xE7\xE3o (CTA) obrigat\xF3ria e natural pedindo para seguir e compartilhar. O texto DEVE conter uma varia\xE7\xE3o natural e envolvente da seguinte ideia: "Fique ligado para as pr\xF3ximas not\xEDcias. Siga o canal e compartilhe este v\xEDdeo. N\xF3s estamos sempre apurando os fatos para trazer as informa\xE7\xF5es em primeira m\xE3o no momento em que acontecem." Sem apresentar fatos novos nesse bloco.
 
 C\xC1LCULO DE PALAVRAS:
 - Ritmo natural: ~155 palavras por minuto.

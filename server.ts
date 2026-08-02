@@ -159,7 +159,7 @@ ESTRUTURA OBRIGATÓRIA DO ROTEIRO:
 2. Contexto (~15-20%): situa quem, onde, quando, por que importa, segurando a revelação central.
 3. Desenvolvimento (a maior parte do vídeo): constrói com detalhes, personagens, números, cronologia, múltiplos ângulos. Se for longo (8+ min), aprofunde em antecedentes, consequências, etc.
 4. Revelação/virada: perto do final. Clímax informativo. O porquê do gancho.
-5. Fechamento (~5-8%): conclusão curta, reflexão, chamada para ação (comentar, curtir, seguir). Sem fatos novos.
+5. Fechamento (~5-8%): conclusão curta, reflexão e uma chamada para ação (CTA) obrigatória e natural pedindo para seguir e compartilhar. O texto DEVE conter uma variação natural e envolvente da seguinte ideia: "Fique ligado para as próximas notícias. Siga o canal e compartilhe este vídeo. Nós estamos sempre apurando os fatos para trazer as informações em primeira mão no momento em que acontecem." Sem apresentar fatos novos nesse bloco.
 
 CÁLCULO DE PALAVRAS:
 - Ritmo natural: ~155 palavras por minuto.
