@@ -188,7 +188,7 @@ Tema/Not\xEDcia/Link: "${input}"
 Dura\xE7\xE3o solicitada: ${durationMin} minutos (alvo de aproximadamente ${targetWordCount} palavras).
 Gerar prompts de imagem: ${generatePrompts ? "Sim" : "N\xE3o"}.`;
     const response = await clientToUse.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: userPrompt,
       config: {
         systemInstruction,
