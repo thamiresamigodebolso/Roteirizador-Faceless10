@@ -302,32 +302,191 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Gemini API Key Configuration */}
-              <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-850 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <Key className="h-4 w-4 text-orange-500" />
-                    Chave API do Gemini
+              {/* Fontes de Pesquisa & Notícias */}
+              <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-850 space-y-4">
+                <div className="flex items-center space-x-2 border-b border-zinc-800 pb-2">
+                  <Globe className="h-4.5 w-4.5 text-orange-500 animate-pulse" />
+                  <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">
+                    Fontes de Pesquisa & Ideias
                   </h3>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-850 text-zinc-400 font-bold border border-zinc-800">
-                    Opcional
-                  </span>
                 </div>
-                <div className="relative rounded-lg shadow-sm">
-                  <input
-                    type={showApiKey ? "text" : "password"}
-                    placeholder="Cole sua AIzaSy... aqui"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    className="block w-full rounded-lg border border-zinc-800 bg-zinc-900 p-2.5 pr-9 text-xs text-zinc-100 placeholder-zinc-500 focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 focus:outline-none transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
-                  >
-                    {showApiKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  </button>
+
+                {/* Sub-seção: Portais de Notícias */}
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+                    📰 Portais de Notícias
+                  </h4>
+                  <div className="grid grid-cols-2 gap-1.5" id="news-portals-links-grid">
+                    <a
+                      href="https://trends.google.com/trends/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      📈 Google Trends
+                    </a>
+                    <a
+                      href="https://g1.globo.com/sp/vale-do-paraiba-regiao/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🔴 G1 Vale (Lorena)
+                    </a>
+                    <a
+                      href="http://jornalatos.net/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      📰 Jornal Atos (Lorena)
+                    </a>
+                    <a
+                      href="https://www.ovale.com.br/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🦅 O Vale
+                    </a>
+                    <a
+                      href="https://g1.globo.com/sp/sao-paulo/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🌆 G1 SP
+                    </a>
+                    <a
+                      href="https://www.metropoles.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🔥 Metrópoles
+                    </a>
+                    <a
+                      href="https://noticias.uol.com.br/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🌐 UOL Notícias
+                    </a>
+                    <a
+                      href="https://www.cnnbrasil.com.br/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      📺 CNN Brasil
+                    </a>
+                    <a
+                      href="https://noticias.r7.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🔵 R7 Notícias
+                    </a>
+                    <a
+                      href="https://g1.globo.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🇧🇷 G1 Brasil
+                    </a>
+                    <a
+                      href="https://portalleodias.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      👑 Léo Dias
+                    </a>
+                    <a
+                      href="https://nacaojuridica.com.br/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      ⚖️ Nação Jurídica
+                    </a>
+                    <a
+                      href="https://g1.globo.com/globonews/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-red-950/40 hover:bg-red-900/60 border border-red-900/40 hover:border-red-800 rounded-lg text-[10px] font-bold text-red-300 flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      📺 GloboNews 24h
+                    </a>
+                    <a
+                      href="https://bandnewstv.com.br/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-blue-950/40 hover:bg-blue-900/60 border border-blue-900/40 hover:border-blue-800 rounded-lg text-[10px] font-bold text-blue-300 flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      📺 BandNews 24h
+                    </a>
+                  </div>
+                </div>
+
+                {/* Sub-seção: Canais do YouTube */}
+                <div className="space-y-2 pt-1">
+                  <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+                    🎥 Canais do YouTube (Ideias)
+                  </h4>
+                  <div className="grid grid-cols-2 gap-1.5" id="youtube-channels-links-grid">
+                    <a
+                      href="https://www.youtube.com/@brasilparalelo/videos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🔴 Brasil Paralelo
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@vocesabia/videos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🧠 Você Sabia?
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@CanalHistoryBrasil/videos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      🦅 History Brasil
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@jovempannews/videos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      📺 Jovem Pan News
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@STF_oficial/videos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      ⚖️ STF Oficial
+                    </a>
+                    <a
+                      href="https://www.youtube.com/@saberdireito/videos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
+                    >
+                      📖 Saber Direito
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -350,128 +509,34 @@ export default function App() {
                 />
               </div>
 
-              {/* Portais de Notícias (Fontes) */}
-              <div className="border-t border-zinc-800 pt-4">
-                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5 flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-orange-500" />
-                  Portais de Notícias (Fontes)
-                </h3>
-                <p className="text-[10px] text-zinc-400 mb-3 leading-relaxed">
-                  Acesse em um clique as tendências e portais locais de Lorena, do Vale do Paraíba, de SP e nacionais para buscar notícias:
-                </p>
-                <div className="grid grid-cols-2 gap-2" id="news-portals-links-grid">
-                  <a
-                    href="https://trends.google.com/trends/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    📈 Google Trends
-                  </a>
-                  <a
-                    href="https://g1.globo.com/sp/vale-do-paraiba-regiao/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    🔴 G1 Vale (Lorena)
-                  </a>
-                  <a
-                    href="http://jornalatos.net/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    📰 Jornal Atos (Lorena)
-                  </a>
-                  <a
-                    href="https://www.ovale.com.br/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    🦅 O Vale
-                  </a>
-                  <a
-                    href="https://g1.globo.com/sp/sao-paulo/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    🌆 G1 São Paulo
-                  </a>
-                  <a
-                    href="https://www.metropoles.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    🔥 Metrópoles
-                  </a>
-                  <a
-                    href="https://noticias.uol.com.br/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    🌐 UOL Notícias
-                  </a>
-                  <a
-                    href="https://www.cnnbrasil.com.br/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    📺 CNN Brasil
-                  </a>
-                  <a
-                    href="https://noticias.r7.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    🔵 R7 Notícias
-                  </a>
-                  <a
-                    href="https://g1.globo.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    🇧🇷 G1 Brasil
-                  </a>
-                  <a
-                    href="https://portalleodias.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    👑 Léo Dias (Fofocas)
-                  </a>
-                  <a
-                    href="https://nacaojuridica.com.br/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    ⚖️ Nação Jurídica
-                  </a>
-                  <a
-                    href="https://g1.globo.com/globonews/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    📺 GloboNews (24h)
-                  </a>
-                  <a
-                    href="https://bandnewstv.com.br/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
-                  >
-                    📺 BandNews (24h)
-                  </a>
+              {/* Gemini API Key Configuration (Moved to Bottom) */}
+              <div className="border-t border-zinc-800 pt-4 pb-2">
+                <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-850 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <Key className="h-4 w-4 text-orange-500" />
+                      Chave API do Gemini
+                    </h3>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-850 text-zinc-400 font-bold border border-zinc-800">
+                      Opcional
+                    </span>
+                  </div>
+                  <div className="relative rounded-lg shadow-sm">
+                    <input
+                      type={showApiKey ? "text" : "password"}
+                      placeholder="Cole sua AIzaSy... aqui"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      className="block w-full rounded-lg border border-zinc-800 bg-zinc-900 p-2.5 pr-9 text-xs text-zinc-100 placeholder-zinc-500 focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 focus:outline-none transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
+                    >
+                      {showApiKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
