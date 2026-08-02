@@ -15,6 +15,8 @@ export interface PublicationMetadata {
   descricao_youtube: string;
   legenda_instagram_tiktok: string;
   hashtags: string[];
+  tags_youtube?: string[];
+  prompt_thumbnail?: string;
 }
 
 export interface ScriptMeta {

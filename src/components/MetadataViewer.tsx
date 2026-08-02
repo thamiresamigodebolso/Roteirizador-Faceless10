@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PublicationMetadata } from "../types";
-import { Copy, Check, Youtube, Instagram, Tag } from "lucide-react";
+import { Copy, Check, Youtube, Instagram, Tag, Image as ImageIcon } from "lucide-react";
 
 interface MetadataViewerProps {
   metadata: PublicationMetadata;
@@ -16,8 +16,15 @@ export default function MetadataViewer({ metadata }: MetadataViewerProps) {
   };
 
   const copyHashtags = () => {
+    if (!metadata.hashtags) return;
     const text = metadata.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ");
     copyToClipboard(text, "hashtags");
+  };
+
+  const copyTagsCommaSeparated = () => {
+    if (!metadata.tags_youtube) return;
+    const text = metadata.tags_youtube.join(", ");
+    copyToClipboard(text, "tags-comma");
   };
 
   return (
@@ -79,10 +86,82 @@ export default function MetadataViewer({ metadata }: MetadataViewerProps) {
             )}
           </button>
         </div>
-        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-850 text-xs text-zinc-300 font-mono whitespace-pre-wrap max-h-[160px] overflow-y-auto leading-relaxed">
+        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-850 text-xs text-zinc-300 font-mono whitespace-pre-wrap max-h-[140px] overflow-y-auto leading-relaxed">
           {metadata.descricao_youtube}
         </div>
       </div>
+
+      {/* Prompt da Thumbnail */}
+      {metadata.prompt_thumbnail && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+              <ImageIcon className="h-4.5 w-4.5 text-orange-400" />
+              Prompt para Miniatura (Thumbnail)
+            </h3>
+            <button
+              id="copy-thumbnail-prompt-btn"
+              onClick={() => copyToClipboard(metadata.prompt_thumbnail, "thumbnail")}
+              className="flex items-center space-x-1.5 text-xs font-semibold text-zinc-400 hover:text-zinc-200 py-1 px-2 rounded-lg hover:bg-zinc-850 transition-all cursor-pointer"
+            >
+              {copiedSection === "thumbnail" ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-green-400" />
+                  <span className="text-green-400 font-bold">Copiado!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5" />
+                  <span>Copiar Prompt</span>
+                </>
+              )}
+            </button>
+          </div>
+          <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-850 text-xs text-zinc-300 font-mono whitespace-pre-wrap max-h-[140px] overflow-y-auto leading-relaxed border-l-4 border-l-orange-500">
+            {metadata.prompt_thumbnail}
+          </div>
+        </div>
+      )}
+
+      {/* Tags do YouTube */}
+      {metadata.tags_youtube && metadata.tags_youtube.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+              <Tag className="h-4.5 w-4.5 text-red-400" />
+              Tags do YouTube (SEO)
+            </h3>
+            <button
+              id="copy-tags-btn"
+              onClick={copyTagsCommaSeparated}
+              className="flex items-center space-x-1.5 text-xs font-semibold text-zinc-400 hover:text-zinc-200 py-1 px-2 rounded-lg hover:bg-zinc-850 transition-all cursor-pointer"
+            >
+              {copiedSection === "tags-comma" ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-green-400" />
+                  <span className="text-green-400 font-bold">Copiadas!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5" />
+                  <span>Copiar Separadas por Vírgula</span>
+                </>
+              )}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5 max-h-[140px] overflow-y-auto p-1 bg-zinc-950 rounded-xl border border-zinc-850">
+            {metadata.tags_youtube.map((tag, idx) => (
+              <span
+                key={idx}
+                id={`youtube-tag-item-${idx}`}
+                className="inline-flex items-center px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-300 select-all"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Legenda Curta */}
       <div>
@@ -115,45 +194,47 @@ export default function MetadataViewer({ metadata }: MetadataViewerProps) {
       </div>
 
       {/* Hashtags Recomendadas */}
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <h3 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
-            <Tag className="h-4.5 w-4.5 text-zinc-500" />
-            Hashtags Recomendadas
-          </h3>
-          <button
-            id="copy-hashtags-btn"
-            onClick={copyHashtags}
-            className="flex items-center space-x-1.5 text-xs font-semibold text-zinc-400 hover:text-zinc-200 py-1 px-2 rounded-lg hover:bg-zinc-850 transition-all cursor-pointer"
-          >
-            {copiedSection === "hashtags" ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-green-400" />
-                <span className="text-green-400 font-bold">Copiadas!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="h-3.5 w-3.5" />
-                <span>Copiar Todas</span>
-              </>
-            )}
-          </button>
+      {metadata.hashtags && metadata.hashtags.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+              <Tag className="h-4.5 w-4.5 text-zinc-550" />
+              Hashtags Recomendadas
+            </h3>
+            <button
+              id="copy-hashtags-btn"
+              onClick={copyHashtags}
+              className="flex items-center space-x-1.5 text-xs font-semibold text-zinc-400 hover:text-zinc-200 py-1 px-2 rounded-lg hover:bg-zinc-850 transition-all cursor-pointer"
+            >
+              {copiedSection === "hashtags" ? (
+                <>
+                  <Check className="h-3.5 w-3.5 text-green-400" />
+                  <span className="text-green-400 font-bold">Copiadas!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3.5 w-3.5" />
+                  <span>Copiar Todas</span>
+                </>
+              )}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {metadata.hashtags.map((tag, idx) => {
+              const displayTag = tag.startsWith("#") ? tag : `#${tag}`;
+              return (
+                <span
+                  key={idx}
+                  id={`hashtag-item-${idx}`}
+                  className="inline-flex items-center px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-all select-all"
+                >
+                  {displayTag}
+                </span>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-1.5">
-          {metadata.hashtags.map((tag, idx) => {
-            const displayTag = tag.startsWith("#") ? tag : `#${tag}`;
-            return (
-              <span
-                key={idx}
-                id={`hashtag-item-${idx}`}
-                className="inline-flex items-center px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-all select-all"
-              >
-                {displayTag}
-              </span>
-            );
-          })}
-        </div>
-      </div>
+      )}
 
     </div>
   );

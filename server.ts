@@ -96,9 +96,14 @@ const scriptResponseSchema = {
         hashtags: {
           type: Type.ARRAY,
           items: { type: Type.STRING }
-        }
+        },
+        tags_youtube: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        },
+        prompt_thumbnail: { type: Type.STRING }
       },
-      required: ["titulos_sugeridos_youtube", "descricao_youtube", "legenda_instagram_tiktok", "hashtags"]
+      required: ["titulos_sugeridos_youtube", "descricao_youtube", "legenda_instagram_tiktok", "hashtags", "tags_youtube", "prompt_thumbnail"]
     }
   },
   required: ["meta", "roteiro", "fatos_apurados", "fatos_nao_confirmados", "fontes_utilizadas", "prompts_imagem", "metadata_publicacao"]
@@ -168,12 +173,14 @@ TOM E ESTILO:
 - Frases curtas e diretas, estruturadas para leitura em voz alta.
 - Sem jargões técnicos não explicados. Sem enrolação.
 
-PROMPTS DE IMAGEM:
+PROMPTS DE IMAGEM E CONTEÚDO EXTRA:
 - Se 'generatePrompts' for falso, retorne a lista 'prompts_imagem' como vazia.
 - Se 'generatePrompts' for verdadeiro, gere aproximadamente 1 prompt a cada 15-20 segundos de vídeo.
 - Descreva os prompts EM INGLÊS. Formato cinematográfico: sujeito, ação, ambiente, ângulo, luz, atmosfera, estilo (ex: photorealistic, documentary style, cinematic lighting, dramatic mood).
 - Mantenha consistência de personagens e estilo em todos os prompts.
-- Indique no campo 'momento_do_video' o trecho correspondente.`;
+- Indique no campo 'momento_do_video' o trecho correspondente.
+- No campo 'tags_youtube', gere uma lista de 10 a 15 tags/palavras-chave relevantes para SEO (em português).
+- No campo 'prompt_thumbnail', gere um prompt de imagem detalhado em inglês focado em criar uma miniatura altamente clicável e chamativa (clickbait style, high contrast, dramatic details, expressive characters, text space) para Midjourney ou Leonardo AI.`;
 
     const userPrompt = `Crie o roteiro completo com base no seguinte input do usuário:
 Tema/Notícia/Link: "${input}"
