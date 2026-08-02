@@ -455,12 +455,12 @@ export default function App() {
                       🧠 Você Sabia?
                     </a>
                     <a
-                      href="https://www.youtube.com/@CanalHistoryBrasil/videos"
+                      href="https://www.youtube.com/@ProfessorHOC/videos"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-1.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-zinc-700 rounded-lg text-[10px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1 transition-all text-center"
                     >
-                      🦅 History Brasil
+                      🌍 Professor HOC
                     </a>
                     <a
                       href="https://www.youtube.com/@jovempannews/videos"
