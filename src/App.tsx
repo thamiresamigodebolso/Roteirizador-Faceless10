@@ -18,7 +18,9 @@ import {
   Globe,
   Key,
   Eye,
-  EyeOff
+  EyeOff,
+  Settings,
+  X
 } from "lucide-react";
 import ScriptForm from "./components/ScriptForm";
 import ScriptHistory from "./components/ScriptHistory";
@@ -34,8 +36,9 @@ export default function App() {
   const [activeScript, setActiveScript] = useState<GeneratedScript | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
-  const [activeTab, setActiveTab] = useState<"roteiro" | "imagens" | "publicacao" | "apuracao">("roteiro");
+  const [activeTab, setActiveTab] = useState<"imagens" | "publicacao" | "apuracao">("imagens");
   const [showTeleprompter, setShowTeleprompter] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(true);
   
   const [apiKey, setApiKey] = useState<string>(() => {
     return localStorage.getItem("gemini_user_api_key") || "";
@@ -57,6 +60,7 @@ export default function App() {
           setHistory(parsed);
           if (parsed.length > 0) {
             setActiveScript(parsed[0]);
+            setIsConfigOpen(false); // Fecha a gaveta se já tivermos um histórico ativo
           }
         }
       }
@@ -75,7 +79,6 @@ export default function App() {
     }
   };
 
-  // Rotating loading messages to keep user relaxed and entertained during deep grounding search and script compilation
   const loadingSteps = [
     "Iniciando os rastreadores web factuais...",
     "Buscando as notícias e atualizações mais recentes sobre o tema...",
@@ -104,6 +107,7 @@ export default function App() {
   const handleGenerateScript = async (input: string, duration: number, generatePrompts: boolean, style: string, energy: string) => {
     setIsLoading(true);
     setActiveScript(null);
+    setIsConfigOpen(false); // Fecha a gaveta para que o usuário veja a tela de carregamento
 
     try {
       const res = await fetch("/api/generate-script", {
@@ -128,9 +132,10 @@ export default function App() {
       const updatedHistory = [newScript, ...history];
       saveHistory(updatedHistory);
       setActiveScript(newScript);
-      setActiveTab("roteiro");
+      setActiveTab("imagens");
     } catch (err: any) {
       alert(`Erro de Geração: ${err.message}`);
+      setIsConfigOpen(true); // Abre a gaveta de volta para o usuário corrigir dados
     } finally {
       setIsLoading(false);
     }
@@ -141,21 +146,26 @@ export default function App() {
     const updated = history.filter((item) => item.id !== id);
     saveHistory(updated);
     if (activeScript?.id === id) {
-      setActiveScript(updated.length > 0 ? updated[0] : null);
+      const nextActive = updated.length > 0 ? updated[0] : null;
+      setActiveScript(nextActive);
+      if (!nextActive) {
+        setIsConfigOpen(true);
+      }
     }
   };
 
   const handleSelectHistory = (script: GeneratedScript) => {
     setActiveScript(script);
-    setActiveTab("roteiro");
+    setActiveTab("imagens");
+    setIsConfigOpen(false); // Fecha a gaveta ao selecionar
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans flex flex-col" id="faceless-main-app">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans flex flex-col relative overflow-x-hidden" id="faceless-main-app">
       
       {/* Header Bar */}
       <header className="border-b border-zinc-850 bg-zinc-900 sticky top-0 z-10 px-6 py-4" id="main-header">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
             <div className="h-10 w-10 bg-zinc-800 text-white flex items-center justify-center rounded-xl shadow-sm border border-zinc-700">
               <Sparkles className="h-5 w-5 text-orange-500" />
@@ -167,237 +177,237 @@ export default function App() {
                   Estúdio Pro
                 </span>
               </h1>
-              <p className="text-xs text-zinc-400 font-medium">Motor de Roteirização de Notícias e Mistérios com Ganchos de Alta Conversão</p>
+              <p className="text-[10px] text-zinc-400 font-medium hidden md:block mt-0.5">Motor de Roteirização de Notícias e Mistérios com Ganchos de Alta Conversão</p>
             </div>
           </div>
           
           <div className="flex items-center space-x-3">
-            <span className="text-xs text-zinc-400 font-medium hidden md:block">
-              Para canais no YouTube, Facebook, Reels & TikTok
-            </span>
+            <button
+              onClick={() => setIsConfigOpen(!isConfigOpen)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-orange-650 hover:bg-orange-600 border border-orange-500 rounded-xl text-xs font-bold text-white shadow transition-all cursor-pointer"
+            >
+              <Settings className="h-4 w-4" />
+              <span>Configurar Roteiro</span>
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Main Workspace Grid */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8" id="workspace-grid">
-        
-        {/* Left Column (Inputs and History) */}
-        <section className="lg:col-span-4 space-y-8" id="left-sidebar-controls">
-          
-          {/* Gemini API Key Configuration block */}
-          <div className="p-6 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-2">
-                <Key className="h-4.5 w-4.5 text-orange-500" />
-                Chave API do Gemini
-              </h2>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 font-bold border border-zinc-700">
-                Opcional
-              </span>
-            </div>
-            <p className="text-xs text-zinc-400 leading-relaxed">
-              Insira sua chave pessoal do Gemini se quiser usar seus próprios créditos ou se a chave padrão falhar.
-            </p>
-            <div className="relative rounded-xl shadow-sm">
-              <input
-                type={showApiKey ? "text" : "password"}
-                placeholder="Cole sua AIzaSy... aqui"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="block w-full rounded-xl border border-zinc-800 bg-zinc-950 p-3 pr-10 text-xs text-zinc-100 placeholder-zinc-500 focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 focus:outline-none transition-all"
-              />
-              <button
-                type="button"
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
-              >
-                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {apiKey ? (
-              <p className="text-[11px] text-orange-500 font-medium flex items-center gap-1">
-                ✓ Usando sua chave API pessoal.
-              </p>
-            ) : (
-              <p className="text-[11px] text-zinc-500 italic">
-                Deixando em branco, o app usa a chave padrão do servidor.
-              </p>
-            )}
-          </div>
-          
-          {/* Main generator block */}
-          <div className="p-6 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm">
-            <h2 className="text-sm font-bold text-zinc-200 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Compass className="h-4.5 w-4.5 text-zinc-450" />
-              Configurar Criação
-            </h2>
-            <ScriptForm onSubmit={handleGenerateScript} isLoading={isLoading} />
-          </div>
-
-          {/* History collection list */}
-          <div className="p-6 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm">
-            <h3 className="text-sm font-bold text-zinc-200 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <History className="h-4.5 w-4.5 text-zinc-450" />
-              Seus Roteiros Salvos ({history.length})
-            </h3>
-            <ScriptHistory
-              history={history}
-              onSelect={handleSelectHistory}
-              onDelete={handleDeleteHistory}
-              activeId={activeScript?.id}
+      {/* Slide-out Sidebar Panel (Drawer) */}
+      <AnimatePresence>
+        {isConfigOpen && (
+          <>
+            {/* Backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsConfigOpen(false)}
+              className="fixed inset-0 bg-black/70 z-40"
             />
-          </div>
-
-        </section>
-
-        {/* Right Column (Results & Dynamic Dashboard) */}
-        <section className="lg:col-span-8 flex flex-col min-h-[500px]" id="right-workspace-panel">
-          
-          <AnimatePresence mode="wait">
-            {isLoading ? (
-              
-              /* Beautiful active loading stage */
-              <motion.div
-                key="loading-stage"
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm"
-                id="loading-stage-panel"
-              >
-                <div className="relative mb-6">
-                  <div className="h-16 w-16 rounded-full border-4 border-zinc-800 border-t-orange-600 animate-spin" />
-                  <Sparkles className="h-6 w-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            {/* Slide-in container */}
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 bottom-0 w-full sm:w-[450px] bg-zinc-900 border-r border-zinc-800 z-50 p-6 overflow-y-auto flex flex-col space-y-6 shadow-2xl"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Settings className="h-5 w-5 text-orange-500" />
+                  <h2 className="text-base font-bold text-zinc-100">Painel de Geração</h2>
                 </div>
-                
-                <h3 className="text-lg font-black text-zinc-50 mb-1.5">Estruturando Seu Roteiro Viral</h3>
-                <p className="text-sm text-zinc-300 font-medium max-w-md mx-auto h-8 animate-pulse text-orange-500">
-                  {loadingSteps[loadingStep]}
-                </p>
+                <button
+                  onClick={() => setIsConfigOpen(false)}
+                  className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 transition-all cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-                <div className="w-full max-w-xs bg-zinc-950 rounded-full h-1.5 mt-6 overflow-hidden">
-                  <motion.div 
-                    className="bg-white h-full rounded-full"
-                    animate={{ width: ["10%", "35%", "65%", "90%"] }}
-                    transition={{ repeat: Infinity, duration: 12, ease: "easeInOut" }}
+              {/* Gemini API Key Configuration */}
+              <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-850 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+                    <Key className="h-4 w-4 text-orange-500" />
+                    Chave API do Gemini
+                  </h3>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-850 text-zinc-400 font-bold border border-zinc-800">
+                    Opcional
+                  </span>
+                </div>
+                <div className="relative rounded-lg shadow-sm">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    placeholder="Cole sua AIzaSy... aqui"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    className="block w-full rounded-lg border border-zinc-800 bg-zinc-900 p-2.5 pr-9 text-xs text-zinc-100 placeholder-zinc-500 focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 focus:outline-none transition-all"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
+                  >
+                    {showApiKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  </button>
                 </div>
-                
-                <p className="text-[11px] text-zinc-500 mt-4 leading-relaxed max-w-sm">
-                  Utilizamos pesquisa de ponta baseada em inteligência factual para garantir que os dados de notícias, datas e links sejam 100% corretos.
-                </p>
-              </motion.div>
+              </div>
 
-            ) : activeScript ? (
+              {/* Form Generator */}
+              <div className="flex-1">
+                <ScriptForm onSubmit={handleGenerateScript} isLoading={isLoading} />
+              </div>
+
+              {/* History */}
+              <div className="border-t border-zinc-800 pt-4">
+                <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  Histórico de Roteiros ({history.length})
+                </h3>
+                <ScriptHistory
+                  history={history}
+                  onSelect={handleSelectHistory}
+                  onDelete={handleDeleteHistory}
+                  activeId={activeScript?.id}
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main Workspace */}
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-6 py-8 flex flex-col" id="workspace-container">
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            
+            /* Beautiful active loading stage */
+            <motion.div
+              key="loading-stage"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm my-auto min-h-[400px]"
+              id="loading-stage-panel"
+            >
+              <div className="relative mb-6">
+                <div className="h-16 w-16 rounded-full border-4 border-zinc-800 border-t-orange-600 animate-spin" />
+                <Sparkles className="h-6 w-6 text-orange-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+              </div>
               
-              /* Display Generated Script Dashboard */
-              <motion.div
-                key="result-dashboard"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex-1 flex flex-col space-y-6"
-                id="active-script-dashboard"
-              >
+              <h3 className="text-lg font-black text-zinc-50 mb-1.5">Estruturando Seu Roteiro Viral</h3>
+              <p className="text-sm text-zinc-300 font-medium max-w-md mx-auto h-8 animate-pulse text-orange-500">
+                {loadingSteps[loadingStep]}
+              </p>
+
+              <div className="w-full max-w-xs bg-zinc-950 rounded-full h-1.5 mt-6 overflow-hidden">
+                <motion.div 
+                  className="bg-white h-full rounded-full"
+                  animate={{ width: ["10%", "35%", "65%", "90%"] }}
+                  transition={{ repeat: Infinity, duration: 12, ease: "easeInOut" }}
+                />
+              </div>
+            </motion.div>
+
+          ) : activeScript ? (
+            
+            /* Display Split Screen Result Dashboard */
+            <motion.div
+              key="result-dashboard"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+              id="active-script-dashboard"
+            >
+              {/* Left Column - Always show the structured script (7/12 cols) */}
+              <div className="lg:col-span-7 space-y-6">
+                
                 {/* Stats Header Panel */}
-                <div className="p-6 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="p-6 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-800 border border-zinc-700 text-[10px] font-bold text-zinc-300 uppercase tracking-widest mb-1.5">
                       {activeScript.meta.categoria || "Notícias"}
                     </span>
-                    <h2 className="text-xl font-black text-zinc-50 leading-tight">
+                    <h2 className="text-lg font-black text-zinc-550 leading-tight">
                       {activeScript.meta.titulo_principal}
                     </h2>
-                    <p className="text-xs text-zinc-400 font-medium mt-1">
-                      Gerado em: {new Date(activeScript.timestamp).toLocaleDateString("pt-BR", { hour: "2-digit", minute: "2-digit" })} • Idioma: {activeScript.meta.idioma}
+                    <p className="text-[11px] text-zinc-400 font-medium mt-1">
+                      Gerado em: {new Date(activeScript.timestamp).toLocaleDateString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>
 
                   {/* Top indicators */}
-                  <div className="grid grid-cols-2 sm:flex sm:items-center gap-4 border-t pt-4 md:border-t-0 md:pt-0 border-zinc-800">
-                    <div className="px-4 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-center min-w-[100px]">
-                      <span className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wide">Duração</span>
-                      <span className="text-base font-extrabold text-zinc-200">{activeScript.meta.duracao_solicitada_min} min</span>
+                  <div className="flex items-center gap-3">
+                    <div className="px-3.5 py-1.5 bg-zinc-950 border border-zinc-850 rounded-xl text-center min-w-[85px]">
+                      <span className="block text-[9px] font-bold text-zinc-500 uppercase tracking-wide">Duração</span>
+                      <span className="text-sm font-extrabold text-zinc-200">{activeScript.meta.duracao_solicitada_min} min</span>
                     </div>
-                    <div className="px-4 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-center min-w-[100px]">
-                      <span className="block text-[10px] font-bold text-zinc-500 uppercase tracking-wide">Palavras</span>
-                      <span className="text-base font-extrabold text-zinc-200">{activeScript.meta.contagem_palavras_real}</span>
+                    <div className="px-3.5 py-1.5 bg-zinc-950 border border-zinc-850 rounded-xl text-center min-w-[85px]">
+                      <span className="block text-[9px] font-bold text-zinc-500 uppercase tracking-wide">Palavras</span>
+                      <span className="text-sm font-extrabold text-zinc-200">{activeScript.meta.contagem_palavras_real}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Tab selector bar */}
-                <div className="flex border-b border-zinc-800 bg-zinc-900/50 p-1.5 rounded-xl gap-1" id="tab-nav-bar">
-                  <button
-                    id="tab-btn-roteiro"
-                    onClick={() => setActiveTab("roteiro")}
-                    className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                      activeTab === "roteiro"
-                        ? "bg-zinc-800 text-orange-500 shadow-sm border border-orange-900/40"
-                        : "text-zinc-450 hover:text-zinc-100"
-                    }`}
-                  >
-                    <Tv className="h-4 w-4" />
-                    <span>Roteiro de Voz</span>
-                  </button>
+                {/* Script Viewer Content */}
+                <div className="p-6 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm">
+                  <ScriptViewer 
+                    blocks={activeScript.roteiro} 
+                    onLaunchTeleprompter={() => setShowTeleprompter(true)}
+                  />
+                </div>
+              </div>
 
+              {/* Right Column - Tabs for Cenas/Prompts, Publicação & Redes, Apuração (5/12 cols) */}
+              <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+                
+                {/* Tab selector bar */}
+                <div className="flex border border-zinc-800 bg-zinc-900 p-1 rounded-xl gap-1" id="tab-nav-bar">
                   <button
                     id="tab-btn-imagens"
                     onClick={() => setActiveTab("imagens")}
-                    className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       activeTab === "imagens"
-                        ? "bg-zinc-800 text-orange-500 shadow-sm border border-orange-900/40"
-                        : "text-zinc-450 hover:text-zinc-100"
+                        ? "bg-zinc-850 text-orange-500 shadow-sm border border-orange-900/40"
+                        : "text-zinc-400 hover:text-zinc-200"
                     }`}
                   >
-                    <ImageIcon className="h-4 w-4" />
-                    <span>Prompts de Imagem</span>
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    <span>Cenas / Prompts</span>
                   </button>
 
                   <button
                     id="tab-btn-publicacao"
                     onClick={() => setActiveTab("publicacao")}
-                    className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       activeTab === "publicacao"
-                        ? "bg-zinc-800 text-orange-500 shadow-sm border border-orange-900/40"
-                        : "text-zinc-450 hover:text-zinc-100"
+                        ? "bg-zinc-850 text-orange-500 shadow-sm border border-orange-900/40"
+                        : "text-zinc-400 hover:text-zinc-200"
                     }`}
                   >
-                    <Share2 className="h-4 w-4" />
-                    <span>Publicação & Redes</span>
+                    <Share2 className="h-3.5 w-3.5" />
+                    <span>Publicação</span>
                   </button>
 
                   <button
                     id="tab-btn-apuracao"
                     onClick={() => setActiveTab("apuracao")}
-                    className={`flex-1 py-2.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       activeTab === "apuracao"
-                        ? "bg-zinc-800 text-orange-500 shadow-sm border border-orange-900/40"
-                        : "text-zinc-450 hover:text-zinc-100"
+                        ? "bg-zinc-850 text-orange-500 shadow-sm border border-orange-900/40"
+                        : "text-zinc-400 hover:text-zinc-200"
                     }`}
                   >
-                    <CheckSquare className="h-4 w-4" />
-                    <span>Checagem Factual</span>
+                    <CheckSquare className="h-3.5 w-3.5" />
+                    <span>Apuração</span>
                   </button>
                 </div>
 
                 {/* Tab content stage */}
                 <div className="p-6 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm min-h-[300px]" id="tab-content-container">
                   <AnimatePresence mode="wait">
-                    {activeTab === "roteiro" && (
-                      <motion.div
-                        key="tab-roteiro"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                      >
-                        <ScriptViewer 
-                          blocks={activeScript.roteiro} 
-                          onLaunchTeleprompter={() => setShowTeleprompter(true)}
-                        />
-                      </motion.div>
-                    )}
-
                     {activeTab === "imagens" && (
                       <motion.div
                         key="tab-imagens"
@@ -436,91 +446,92 @@ export default function App() {
                     )}
                   </AnimatePresence>
                 </div>
-              </motion.div>
-            ) : (
-              
-              /* Beautiful welcome default empty state with detailed workflow guidelines */
-              <motion.div
-                key="welcome-state"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex-1 p-8 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm flex flex-col justify-between"
-                id="welcome-placeholder-panel"
-              >
-                <div>
-                  <div className="h-12 w-12 bg-indigo-950/40 border border-indigo-900 text-indigo-400 flex items-center justify-center rounded-2xl mb-6">
-                    <Tv className="h-6 w-6" />
+              </div>
+            </motion.div>
+          ) : (
+            
+            /* Welcome default empty state */
+            <motion.div
+              key="welcome-state"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex-1 p-8 bg-zinc-900 rounded-2xl border border-zinc-800 shadow-sm flex flex-col justify-between max-w-4xl mx-auto w-full my-6"
+              id="welcome-placeholder-panel"
+            >
+              <div>
+                <div className="h-12 w-12 bg-indigo-950/40 border border-indigo-900 text-indigo-400 flex items-center justify-center rounded-2xl mb-6">
+                  <Tv className="h-6 w-6" />
+                </div>
+                
+                <h2 className="text-xl font-black text-zinc-50 tracking-tight">Crie Conteúdos Virais que Prendem no Sofá</h2>
+                <p className="text-sm text-zinc-400 mt-1 max-w-xl font-medium">
+                  Preparamos um motor especializado para converter notícias secas, links ou temas de nicho em narrativas dramáticas estruturadas para prender retenção orgânica.
+                </p>
+
+                {/* Structure explanations */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8" id="workflow-cards-grid">
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-md bg-rose-950 text-[10px] font-bold text-rose-450 uppercase border border-rose-900/50">
+                        Hk
+                      </span>
+                      <h4 className="text-xs font-bold text-zinc-200">Gancho de Mistério (Hook)</h4>
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      Inicia com uma afirmação dramática ou pergunta intrigante. Retém o clímax informativo para manter os olhos presos nos primeiros segundos cruciais.
+                    </p>
                   </div>
-                  
-                  <h2 className="text-xl font-black text-zinc-50 tracking-tight">Crie Conteúdos Virais que Prendem no Sofá</h2>
-                  <p className="text-sm text-zinc-450 mt-1 max-w-xl font-medium">
-                    Preparamos um motor especializado para converter notícias secas, links ou temas de nicho em narrativas dramáticas estruturadas para prender retenção orgânica.
-                  </p>
 
-                  {/* Structure explanations */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8" id="workflow-cards-grid">
-                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-rose-950 text-[10px] font-bold text-rose-400 uppercase border border-rose-900/50">
-                          Hk
-                        </span>
-                        <h4 className="text-xs font-bold text-zinc-200">Gancho de Mistério (Hook)</h4>
-                      </div>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
-                        Inicia com uma afirmação dramática ou pergunta intrigante. Retém o clímax informativo para manter os olhos presos nos primeiros segundos cruciais.
-                      </p>
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-950 text-[10px] font-bold text-amber-450 uppercase border border-amber-900/50">
+                        Rv
+                      </span>
+                      <h4 className="text-xs font-bold text-zinc-200">Revelação no Final (Climax)</h4>
                     </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      O fechamento entrega a revelação principal no momento perfeito perto do fim do vídeo, entregando o valor real da narrativa.
+                    </p>
+                  </div>
 
-                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-950 text-[10px] font-bold text-amber-400 uppercase border border-amber-900/50">
-                          Rv
-                        </span>
-                        <h4 className="text-xs font-bold text-zinc-200">Revelação no Final (Climax)</h4>
-                      </div>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
-                        O fechamento entrega a revelação principal no momento perfeito perto do fim do vídeo, entregando o valor real da narrativa.
-                      </p>
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Globe className="h-4.5 w-4.5 text-blue-400" />
+                      <h4 className="text-xs font-bold text-zinc-200">Segurança Factual</h4>
                     </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      Busca dados, notícias recentes e informações corretas em tempo real na web para compor o roteiro com segurança factual.
+                    </p>
+                  </div>
 
-                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Globe className="h-4.5 w-4.5 text-blue-400" />
-                        <h4 className="text-xs font-bold text-zinc-200">Apuração de Grounding</h4>
-                      </div>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
-                        Se o tema for de última hora ou baseado em fatos históricos, nosso motor executa buscas integradas em tempo real na web para ratificar dados.
-                      </p>
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
+                    <div className="flex items-center gap-2 mb-2">
+                      <ImageIcon className="h-4.5 w-4.5 text-emerald-400" />
+                      <h4 className="text-xs font-bold text-zinc-200">Cenas Cinematográficas</h4>
                     </div>
-
-                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-950/40">
-                      <div className="flex items-center gap-2 mb-2">
-                        <ImageIcon className="h-4.5 w-4.5 text-emerald-400" />
-                        <h4 className="text-xs font-bold text-zinc-200">Cenas Cinematográficas</h4>
-                      </div>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
-                        Gera detalhadamente prompts em inglês prontos para criar as mídias visuais ilustrativas do vídeo faceless.
-                      </p>
-                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed">
+                      Gera detalhadamente prompts em inglês prontos para criar as mídias visuais ilustrativas do vídeo faceless.
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                <div className="border-t border-zinc-800 pt-6 mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-zinc-500">
-                  <div className="flex items-center gap-2">
-                    <CheckSquare className="h-4 w-4 text-zinc-500" />
-                    <span>Controle de ritmo: ~155 palavras por minuto.</span>
-                  </div>
-                  <div>
-                    <span>Insira um tema à esquerda para começar.</span>
-                  </div>
+              <div className="border-t border-zinc-800 pt-6 mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-zinc-500">
+                <div className="flex items-center gap-2">
+                  <CheckSquare className="h-4 w-4 text-zinc-500" />
+                  <span>Controle de ritmo: ~155 palavras por minuto.</span>
                 </div>
-              </motion.div>
+                <button
+                  onClick={() => setIsConfigOpen(true)}
+                  className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-xs font-bold text-white rounded-lg transition-all"
+                >
+                  Abrir Painel de Criação
+                </button>
+              </div>
+            </motion.div>
 
-            )}
-          </AnimatePresence>
-
-        </section>
-
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Teleprompter Overlay Modal */}
@@ -541,7 +552,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Footer bar */}
-      <footer className="border-t border-zinc-850 bg-zinc-900 py-6 px-6 text-center text-xs text-zinc-400" id="main-footer">
+      <footer className="border-t border-zinc-850 bg-zinc-900 py-6 px-6 text-center text-xs text-zinc-400 mt-auto" id="main-footer">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© 2026 Roteirizador Faceless • Projetado com foco em retenção orgânica de canais multiplataforma.</p>
           <p className="font-semibold text-zinc-300">Alvo: 155 Palavras/Minuto • Estrutura Hook & Reveal</p>

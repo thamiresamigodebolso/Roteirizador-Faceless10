@@ -192,7 +192,6 @@ Gerar prompts de imagem: ${generatePrompts ? "Sim" : "N\xE3o"}.`;
       contents: userPrompt,
       config: {
         systemInstruction,
-        tools: [{ googleSearch: {} }],
         responseMimeType: "application/json",
         responseSchema: scriptResponseSchema,
         temperature: 0.7
