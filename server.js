@@ -1,11 +1,22 @@
 /**
- * Arquivo de entrada para compatibilidade com Hostinger e outros serviços de hospedagem.
- * Este arquivo carrega o servidor compilado e garante que variáveis de ambiente sejam respeitadas.
+ * Arquivo de entrada principal (server.js) para compatibilidade com Hostinger (PassengerStartupFile server.js) e ESM.
  */
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+process.env.NODE_ENV = 'production';
+
+console.log("-----------------------------------------");
+console.log("SISTEMA: Roteirizador Faceless Pro (Hostinger)");
+console.log("AMBIENTE:", process.env.NODE_ENV);
+console.log("PORTA:", process.env.PORT || 3000);
+console.log("-----------------------------------------");
+
 try {
-  console.log("Iniciando servidor via server.js...");
+  console.log("Iniciando bundle do servidor (dist/server.cjs)...");
   require('./dist/server.cjs');
 } catch (error) {
-  console.error("Erro fatal ao iniciar o servidor:", error);
+  console.error("ERRO CRÍTICO AO CARREGAR O SERVIDOR:");
+  console.error(error);
   process.exit(1);
 }
