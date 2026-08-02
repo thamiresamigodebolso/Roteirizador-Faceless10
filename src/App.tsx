@@ -456,6 +456,22 @@ export default function App() {
                   >
                     ⚖️ Nação Jurídica
                   </a>
+                  <a
+                    href="https://g1.globo.com/globonews/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    📺 GloboNews (24h)
+                  </a>
+                  <a
+                    href="https://bandnewstv.com.br/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 bg-zinc-950 hover:bg-zinc-850 border border-zinc-850 rounded-lg text-[10.5px] font-bold text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all text-center"
+                  >
+                    📺 BandNews (24h)
+                  </a>
                 </div>
               </div>
             </motion.div>
