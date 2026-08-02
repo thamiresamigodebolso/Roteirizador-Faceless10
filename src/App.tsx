@@ -20,7 +20,8 @@ import {
   Eye,
   EyeOff,
   Settings,
-  X
+  X,
+  Trash2
 } from "lucide-react";
 import ScriptForm from "./components/ScriptForm";
 import ScriptHistory from "./components/ScriptHistory";
@@ -182,6 +183,18 @@ export default function App() {
           </div>
           
           <div className="flex items-center space-x-3">
+            {activeScript && (
+              <button
+                onClick={() => {
+                  setActiveScript(null);
+                  setIsConfigOpen(true);
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 border border-zinc-750 rounded-xl text-xs font-bold text-zinc-300 shadow transition-all cursor-pointer"
+              >
+                <Trash2 className="h-4 w-4 text-zinc-400" />
+                <span>Limpar Tela</span>
+              </button>
+            )}
             <button
               onClick={() => setIsConfigOpen(!isConfigOpen)}
               className="flex items-center gap-2 px-4 py-2.5 bg-orange-650 hover:bg-orange-600 border border-orange-500 rounded-xl text-xs font-bold text-white shadow transition-all cursor-pointer"
