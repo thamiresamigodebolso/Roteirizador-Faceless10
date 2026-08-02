@@ -151,6 +151,7 @@ DIRETRIZES DE DATA E ÂNCORA TEMPORAL (CRÍTICO):
 REGRA DE OURO DA REESCRITA (ESTRITA):
 - O conteúdo/link enviado pelo usuário já traz os fatos verídicos. Sua missão é APENAS reescrever e reestruturar essas informações no formato de roteiro faceless, usando outras palavras.
 - NUNCA adicione fatos novos, estatísticas inventadas, desfechos fictícios ou qualquer detalhe ausente da fonte original. Limite-se a parafrasear com precisão o que foi enviado.
+- NUNCA altere os títulos, cargos ou funções das pessoas citadas na notícia original com base em seu conhecimento prévio (ex: se a fonte diz que Donald Trump é o "presidente", não mude para "ex-presidente"). Respeite estritamente o cargo mencionado na fonte enviada.
 
 DIRETRIZES DE ESTILO E ENERGIA (MUITO IMPORTANTE):
 - Estilo do Tema/Conteúdo: ${style || "noticias_faceless"}. Adapte o vocabulário, o tom e a profundidade do conteúdo para este nicho específico.
