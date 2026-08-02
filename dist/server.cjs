@@ -98,30 +98,30 @@ var scriptResponseSchema = {
         },
         required: ["momento_do_video", "prompt"]
       }
-    },
-    metadata_publicacao: {
-      type: import_genai.Type.OBJECT,
-      properties: {
-        titulos_sugeridos_youtube: {
-          type: import_genai.Type.ARRAY,
-          items: { type: import_genai.Type.STRING }
-        },
-        descricao_youtube: { type: import_genai.Type.STRING },
-        legenda_instagram_tiktok: { type: import_genai.Type.STRING },
-        hashtags: {
-          type: import_genai.Type.ARRAY,
-          items: { type: import_genai.Type.STRING }
-        },
-        tags_youtube: {
-          type: import_genai.Type.ARRAY,
-          items: { type: import_genai.Type.STRING }
-        },
-        prompt_thumbnail: { type: import_genai.Type.STRING }
-      },
-      required: ["titulos_sugeridos_youtube", "descricao_youtube", "legenda_instagram_tiktok", "hashtags", "tags_youtube", "prompt_thumbnail"]
     }
   },
-  required: ["meta", "roteiro", "fatos_apurados", "fatos_nao_confirmados", "fontes_utilizadas", "prompts_imagem", "metadata_publicacao"]
+  required: ["meta", "roteiro", "fatos_apurados", "fatos_nao_confirmados", "fontes_utilizadas", "prompts_imagem"]
+};
+var metadataResponseSchema = {
+  type: import_genai.Type.OBJECT,
+  properties: {
+    titulos_sugeridos_youtube: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    descricao_youtube: { type: import_genai.Type.STRING },
+    legenda_instagram_tiktok: { type: import_genai.Type.STRING },
+    hashtags: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    tags_youtube: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    prompt_thumbnail: { type: import_genai.Type.STRING }
+  },
+  required: ["titulos_sugeridos_youtube", "descricao_youtube", "legenda_instagram_tiktok", "hashtags", "tags_youtube", "prompt_thumbnail"]
 };
 app.post("/api/generate-script", async (req, res) => {
   try {
@@ -182,14 +182,12 @@ TOM E ESTILO:
 - Frases curtas e diretas, estruturadas para leitura em voz alta.
 - Sem jarg\xF5es t\xE9cnicos n\xE3o explicados. Sem enrola\xE7\xE3o.
 
-PROMPTS DE IMAGEM E CONTE\xDADO EXTRA:
+PROMPTS DE IMAGEM:
 - Se 'generatePrompts' for falso, retorne a lista 'prompts_imagem' como vazia.
 - Se 'generatePrompts' for verdadeiro, gere aproximadamente 1 prompt a cada 15-20 segundos de v\xEDdeo.
 - Descreva os prompts EM INGL\xCAS. Formato cinematogr\xE1fico: sujeito, a\xE7\xE3o, ambiente, \xE2ngulo, luz, atmosfera, estilo (ex: photorealistic, documentary style, cinematic lighting, dramatic mood).
 - Mantenha consist\xEAncia de personagens e estilo em todos os prompts.
-- Indique no campo 'momento_do_video' o trecho correspondente.
-- No campo 'tags_youtube', gere uma lista de 10 a 15 tags/palavras-chave relevantes para SEO (em portugu\xEAs).
-- No campo 'prompt_thumbnail', gere um prompt de imagem detalhado em ingl\xEAs focado em criar uma miniatura altamente clic\xE1vel e chamativa (clickbait style, high contrast, dramatic details, expressive characters, text space) para Midjourney ou Leonardo AI.`;
+- Indique no campo 'momento_do_video' o trecho correspondente.`;
     const userPrompt = `Crie o roteiro completo com base no seguinte input do usu\xE1rio:
 Tema/Not\xEDcia/Link: "${input}"
 Dura\xE7\xE3o solicitada: ${durationMin} minutos (alvo de aproximadamente ${targetWordCount} palavras).
@@ -225,6 +223,62 @@ Gerar prompts de imagem: ${generatePrompts ? "Sim" : "N\xE3o"}.`;
     res.json(parsedData);
   } catch (error) {
     console.error("Erro ao processar roteiro:", error);
+    res.status(500).json({ error: error.message || "Ocorreu um erro interno no servidor." });
+  }
+});
+app.post("/api/generate-metadata", async (req, res) => {
+  try {
+    const { scriptText, apiKey } = req.body;
+    if (!scriptText || typeof scriptText !== "string" || scriptText.trim() === "") {
+      res.status(400).json({ error: "O texto do roteiro \xE9 obrigat\xF3rio para gerar os metadados." });
+      return;
+    }
+    let clientToUse = ai;
+    const userApiKey = apiKey && typeof apiKey === "string" ? apiKey.trim() : "";
+    if (userApiKey) {
+      clientToUse = new import_genai.GoogleGenAI({
+        apiKey: userApiKey,
+        httpOptions: {
+          headers: {
+            "User-Agent": "aistudio-build"
+          }
+        }
+      });
+    } else if (!process.env.GEMINI_API_KEY) {
+      res.status(400).json({
+        error: "Chave de API do Gemini n\xE3o configurada no servidor. Por favor, insira sua chave pessoal no painel lateral do aplicativo."
+      });
+      return;
+    }
+    const systemInstruction = `Voc\xEA \xE9 um especialista em SEO e Marketing para YouTube, Instagram, TikTok e Facebook. Sua fun\xE7\xE3o \xE9 analisar o ROTEIRO de v\xEDdeo fornecido e gerar metadados otimizados para publica\xE7\xE3o.
+    
+    Voc\xEA DEVE preencher os seguintes campos seguindo as diretrizes:
+    1. 'titulos_sugeridos_youtube': Uma lista com 3 a 5 t\xEDtulos altamente persuasivos (clickbait de curiosidade baseados no mist\xE9rio/gancho do roteiro).
+    2. 'descricao_youtube': Uma descri\xE7\xE3o de 2 a 3 par\xE1grafos rica em palavras-chave sobre o tema do v\xEDdeo, acompanhada de cap\xEDtulos/timestamps sugeridos se achar pertinente.
+    3. 'legenda_instagram_tiktok': Uma legenda curta, envolvente e chamativa para redes de v\xEDdeo r\xE1pido.
+    4. 'hashtags': Uma lista de 5 a 8 hashtags relevantes em formato de string (sem o s\xEDmbolo # no in\xEDcio, apenas a palavra).
+    5. 'tags_youtube': Uma lista de 10 a 15 palavras-chave relevantes para SEO no YouTube.
+    6. 'prompt_thumbnail': Um prompt de gera\xE7\xE3o de imagem detalhado em ingl\xEAs focado em criar uma miniatura altamente clic\xE1vel e chamativa (clickbait style, high contrast, dramatic details, expressive characters, text space) para Midjourney ou Leonardo AI.`;
+    const userPrompt = `Gere os metadados de publica\xE7\xE3o para o seguinte roteiro de v\xEDdeo:
+    "${scriptText}"`;
+    const response = await clientToUse.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: userPrompt,
+      config: {
+        systemInstruction,
+        responseMimeType: "application/json",
+        responseSchema: metadataResponseSchema,
+        temperature: 0.7
+      }
+    });
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error("O modelo n\xE3o retornou nenhum texto.");
+    }
+    const parsedData = JSON.parse(responseText.trim());
+    res.json(parsedData);
+  } catch (error) {
+    console.error("Erro ao processar metadados:", error);
     res.status(500).json({ error: error.message || "Ocorreu um erro interno no servidor." });
   }
 });

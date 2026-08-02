@@ -40,6 +40,47 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<"imagens" | "publicacao" | "apuracao">("imagens");
   const [showTeleprompter, setShowTeleprompter] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(true);
+  const [isGeneratingMetadata, setIsGeneratingMetadata] = useState(false);
+
+  const handleGenerateMetadata = async () => {
+    if (!activeScript) return;
+    setIsGeneratingMetadata(true);
+
+    try {
+      const scriptText = activeScript.roteiro
+        .map((b) => `[${b.bloco.toUpperCase()}]\n${b.texto_narracao}`)
+        .join("\n\n");
+
+      const res = await fetch("/api/generate-metadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scriptText, apiKey }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Ocorreu um erro ao gerar os metadados.");
+      }
+
+      const rawMetadata = await res.json();
+
+      const updatedScript = {
+        ...activeScript,
+        metadata_publicacao: rawMetadata
+      };
+
+      setActiveScript(updatedScript);
+
+      const updatedHistory = history.map((item) => 
+        item.id === activeScript.id ? updatedScript : item
+      );
+      saveHistory(updatedHistory);
+    } catch (err: any) {
+      alert(`Erro ao Gerar Metadados: ${err.message}`);
+    } finally {
+      setIsGeneratingMetadata(false);
+    }
+  };
   
   const [apiKey, setApiKey] = useState<string>(() => {
     return localStorage.getItem("gemini_user_api_key") || "";
@@ -460,8 +501,42 @@ export default function App() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
+                        className="h-full flex flex-col justify-center"
                       >
-                        <MetadataViewer metadata={activeScript.metadata_publicacao} />
+                        {activeScript.metadata_publicacao ? (
+                          <MetadataViewer metadata={activeScript.metadata_publicacao} />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center p-8 text-center space-y-4 my-auto">
+                            <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800 text-zinc-400">
+                              <Share2 className="h-8 w-8 text-orange-500 animate-pulse" />
+                            </div>
+                            <h3 className="text-base font-bold text-zinc-200">Metadados de Publicação (SEO, Tags e Thumbnail)</h3>
+                            <p className="text-xs text-zinc-400 max-w-sm">
+                              Gostou do roteiro gerado? Clique no botão abaixo para gerar títulos de alta conversão, descrição otimizada, tags para YouTube e prompt de thumbnail.
+                            </p>
+                            <button
+                              disabled={isGeneratingMetadata}
+                              onClick={handleGenerateMetadata}
+                              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white shadow transition-all cursor-pointer ${
+                                isGeneratingMetadata 
+                                  ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700" 
+                                  : "bg-orange-600 hover:bg-orange-500 border border-orange-500"
+                              }`}
+                            >
+                              {isGeneratingMetadata ? (
+                                <>
+                                  <div className="h-4 w-4 border-2 border-zinc-650 border-t-white rounded-full animate-spin" />
+                                  <span>Gerando Metadados SEO...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="h-4 w-4" />
+                                  <span>Gerar Título, Tags, Copy & Thumbnail</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </motion.div>
                     )}
 
