@@ -141,16 +141,20 @@ app.post("/api/generate-script", async (req, res) => {
 
     const durationMin = Math.max(1, Math.min(20, Number(duration) || 3));
     const targetWordCount = durationMin * 155;
+    const currentDateStr = new Date().toLocaleDateString("pt-BR", { year: 'numeric', month: 'long', day: 'numeric' });
 
     const systemInstruction = `Você é o motor de roteirização de um canal de notícias faceless multiplataforma (YouTube, Facebook, Instagram, TikTok). Sua função é transformar um link, um texto ou uma informação/tema livre em um roteiro de vídeo narrado em PORTUGUÊS DO BRASIL, pronto para gravação, seguindo uma estrutura fixa de "gancho de mistério + revelação no final".
+
+DIRETRIZES DE DATA E ÂNCORA TEMPORAL (CRÍTICO):
+- A DATA ATUAL HOJE É: ${currentDateStr} (ano de 2026). Use este ano de 2026 como referência temporal do presente. Notícias que acabaram de acontecer são de 2026, não de anos anteriores como 2024. Nunca confunda a data das notícias recentes.
 
 DIRETRIZES DE ESTILO E ENERGIA (MUITO IMPORTANTE):
 - Estilo do Tema/Conteúdo: ${style || "noticias_faceless"}. Adapte o vocabulário, o tom e a profundidade do conteúdo para este nicho específico.
 - Energia do Roteiro: ${energy || "forte"}. Este é o ritmo da narração. Se for "agressivo", use frases curtas e impacto. Se for "misterioso", use pausas dramáticas implícitas e suspense. Se for "calmo", use um tom mais explicativo e sereno.
 
 INSTRUÇÕES DE PESQUISA E APURAÇÃO:
-- Utilize a pesquisa integrada para buscar mais contexto, atualizações e detalhes sobre o tema.
-- Confirme datas, nomes, números e declarações (não invente dados não confirmados).
+- Utilize o contexto e a busca para validar datas, nomes, números e declarações.
+- NUNCA invente declarações, depoimentos em aspas ou falas de figuras públicas (como o Presidente Lula) que não estejam documentadas de forma verificável nas fontes reais. Não crie falsas citações de podcasts ou pronunciamentos.
 - Busque reações, desdobramentos ou contexto histórico relevante que enriqueça a narrativa, especialmente para roteiros mais longos (8+ min).
 - Se for um tema em tempo real (algo acontecendo agora), priorize as informações mais recentes encontradas.
 - Se a busca não trouxer confirmação suficiente sobre algum ponto, coloque esse ponto como não confirmado no campo 'fatos_nao_confirmados', ao invés de apresentar como fato certo no roteiro.
@@ -256,8 +260,12 @@ app.post("/api/generate-metadata", async (req, res) => {
       });
       return;
     }
+    const currentDateStr = new Date().toLocaleDateString("pt-BR", { year: 'numeric', month: 'long', day: 'numeric' });
 
     const systemInstruction = `Você é um especialista em SEO e Marketing para YouTube, Instagram, TikTok e Facebook. Sua função é analisar o ROTEIRO de vídeo fornecido e gerar metadados otimizados para publicação.
+    
+    DIRETRIZES DE DATA E ÂNCORA TEMPORAL (CRÍTICO):
+    - A DATA ATUAL HOJE É: ${currentDateStr} (ano de 2026). Use este ano de 2026 como referência temporal do presente. Notícias que acabaram de acontecer são de 2026, não de anos anteriores como 2024. Nunca confunda a data das notícias recentes. NUNCA invente declarações, depoimentos ou citações que não estejam documentadas.
     
     Você DEVE preencher os seguintes campos seguindo as diretrizes:
     1. 'titulos_sugeridos_youtube': Uma lista com 3 a 5 títulos altamente persuasivos (clickbait de curiosidade baseados no mistério/gancho do roteiro).

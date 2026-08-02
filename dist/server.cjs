@@ -149,15 +149,19 @@ app.post("/api/generate-script", async (req, res) => {
     }
     const durationMin = Math.max(1, Math.min(20, Number(duration) || 3));
     const targetWordCount = durationMin * 155;
+    const currentDateStr = (/* @__PURE__ */ new Date()).toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "numeric" });
     const systemInstruction = `Voc\xEA \xE9 o motor de roteiriza\xE7\xE3o de um canal de not\xEDcias faceless multiplataforma (YouTube, Facebook, Instagram, TikTok). Sua fun\xE7\xE3o \xE9 transformar um link, um texto ou uma informa\xE7\xE3o/tema livre em um roteiro de v\xEDdeo narrado em PORTUGU\xCAS DO BRASIL, pronto para grava\xE7\xE3o, seguindo uma estrutura fixa de "gancho de mist\xE9rio + revela\xE7\xE3o no final".
+
+DIRETRIZES DE DATA E \xC2NCORA TEMPORAL (CR\xCDTICO):
+- A DATA ATUAL HOJE \xC9: ${currentDateStr} (ano de 2026). Use este ano de 2026 como refer\xEAncia temporal do presente. Not\xEDcias que acabaram de acontecer s\xE3o de 2026, n\xE3o de anos anteriores como 2024. Nunca confunda a data das not\xEDcias recentes.
 
 DIRETRIZES DE ESTILO E ENERGIA (MUITO IMPORTANTE):
 - Estilo do Tema/Conte\xFAdo: ${style || "noticias_faceless"}. Adapte o vocabul\xE1rio, o tom e a profundidade do conte\xFAdo para este nicho espec\xEDfico.
 - Energia do Roteiro: ${energy || "forte"}. Este \xE9 o ritmo da narra\xE7\xE3o. Se for "agressivo", use frases curtas e impacto. Se for "misterioso", use pausas dram\xE1ticas impl\xEDcitas e suspense. Se for "calmo", use um tom mais explicativo e sereno.
 
 INSTRU\xC7\xD5ES DE PESQUISA E APURA\xC7\xC3O:
-- Utilize a pesquisa integrada para buscar mais contexto, atualiza\xE7\xF5es e detalhes sobre o tema.
-- Confirme datas, nomes, n\xFAmeros e declara\xE7\xF5es (n\xE3o invente dados n\xE3o confirmados).
+- Utilize o contexto e a busca para validar datas, nomes, n\xFAmeros e declara\xE7\xF5es.
+- NUNCA invente declara\xE7\xF5es, depoimentos em aspas ou falas de figuras p\xFAblicas (como o Presidente Lula) que n\xE3o estejam documentadas de forma verific\xE1vel nas fontes reais. N\xE3o crie falsas cita\xE7\xF5es de podcasts ou pronunciamentos.
 - Busque rea\xE7\xF5es, desdobramentos ou contexto hist\xF3rico relevante que enrique\xE7a a narrativa, especialmente para roteiros mais longos (8+ min).
 - Se for um tema em tempo real (algo acontecendo agora), priorize as informa\xE7\xF5es mais recentes encontradas.
 - Se a busca n\xE3o trouxer confirma\xE7\xE3o suficiente sobre algum ponto, coloque esse ponto como n\xE3o confirmado no campo 'fatos_nao_confirmados', ao inv\xE9s de apresentar como fato certo no roteiro.
@@ -250,7 +254,11 @@ app.post("/api/generate-metadata", async (req, res) => {
       });
       return;
     }
+    const currentDateStr = (/* @__PURE__ */ new Date()).toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "numeric" });
     const systemInstruction = `Voc\xEA \xE9 um especialista em SEO e Marketing para YouTube, Instagram, TikTok e Facebook. Sua fun\xE7\xE3o \xE9 analisar o ROTEIRO de v\xEDdeo fornecido e gerar metadados otimizados para publica\xE7\xE3o.
+    
+    DIRETRIZES DE DATA E \xC2NCORA TEMPORAL (CR\xCDTICO):
+    - A DATA ATUAL HOJE \xC9: ${currentDateStr} (ano de 2026). Use este ano de 2026 como refer\xEAncia temporal do presente. Not\xEDcias que acabaram de acontecer s\xE3o de 2026, n\xE3o de anos anteriores como 2024. Nunca confunda a data das not\xEDcias recentes. NUNCA invente declara\xE7\xF5es, depoimentos ou cita\xE7\xF5es que n\xE3o estejam documentadas.
     
     Voc\xEA DEVE preencher os seguintes campos seguindo as diretrizes:
     1. 'titulos_sugeridos_youtube': Uma lista com 3 a 5 t\xEDtulos altamente persuasivos (clickbait de curiosidade baseados no mist\xE9rio/gancho do roteiro).
