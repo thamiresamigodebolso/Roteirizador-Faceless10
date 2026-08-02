@@ -155,6 +155,10 @@ app.post("/api/generate-script", async (req, res) => {
 DIRETRIZES DE DATA E \xC2NCORA TEMPORAL (CR\xCDTICO):
 - A DATA ATUAL HOJE \xC9: ${currentDateStr} (ano de 2026). Use este ano de 2026 como refer\xEAncia temporal do presente. Not\xEDcias que acabaram de acontecer s\xE3o de 2026, n\xE3o de anos anteriores como 2024. Nunca confunda a data das not\xEDcias recentes.
 
+REGRA DE OURO DA REESCRITA (ESTRITA):
+- O conte\xFAdo/link enviado pelo usu\xE1rio j\xE1 traz os fatos ver\xEDdicos. Sua miss\xE3o \xE9 APENAS reescrever e reestruturar essas informa\xE7\xF5es no formato de roteiro faceless, usando outras palavras.
+- NUNCA adicione fatos novos, estat\xEDsticas inventadas, desfechos fict\xEDcios ou qualquer detalhe ausente da fonte original. Limite-se a parafrasear com precis\xE3o o que foi enviado.
+
 DIRETRIZES DE ESTILO E ENERGIA (MUITO IMPORTANTE):
 - Estilo do Tema/Conte\xFAdo: ${style || "noticias_faceless"}. Adapte o vocabul\xE1rio, o tom e a profundidade do conte\xFAdo para este nicho espec\xEDfico.
 - Energia do Roteiro: ${energy || "forte"}. Este \xE9 o ritmo da narra\xE7\xE3o. Se for "agressivo", use frases curtas e impacto. Se for "misterioso", use pausas dram\xE1ticas impl\xEDcitas e suspense. Se for "calmo", use um tom mais explicativo e sereno.
