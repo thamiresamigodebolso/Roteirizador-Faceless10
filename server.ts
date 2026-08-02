@@ -155,6 +155,7 @@ DIRETRIZES DE ESTILO E ENERGIA (MUITO IMPORTANTE):
 INSTRUÇÕES DE PESQUISA E APURAÇÃO:
 - Utilize o contexto e a busca para validar datas, nomes, números e declarações.
 - NUNCA invente declarações, depoimentos em aspas ou falas de figuras públicas (como o Presidente Lula) que não estejam documentadas de forma verificável nas fontes reais. Não crie falsas citações de podcasts ou pronunciamentos.
+- Se precisar citar valores específicos (multas, quantias de dinheiro, estatísticas exatas) e a fonte de entrada não deixar o número claro e confirmado, NÃO chute nem invente um valor. Use termos seguros como "uma multa financeira", "uma penalidade definida por lei" ou simplesmente mencione que o valor foi estabelecido pela Justiça. A precisão dos números é de extrema importância para a credibilidade do canal.
 - Busque reações, desdobramentos ou contexto histórico relevante que enriqueça a narrativa, especialmente para roteiros mais longos (8+ min).
 - Se for um tema em tempo real (algo acontecendo agora), priorize as informações mais recentes encontradas.
 - Se a busca não trouxer confirmação suficiente sobre algum ponto, coloque esse ponto como não confirmado no campo 'fatos_nao_confirmados', ao invés de apresentar como fato certo no roteiro.
