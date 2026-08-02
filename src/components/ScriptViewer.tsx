@@ -70,8 +70,8 @@ export default function ScriptViewer({ blocks, onLaunchTeleprompter }: ScriptVie
 
   const copyAllScript = () => {
     const fullScript = blocks
-      .map((b) => `[${b.bloco.toUpperCase()} - ${b.tempo_inicio_seg}s a ${b.tempo_fim_seg}s]\n${b.texto_narracao}`)
-      .join("\n\n");
+      .map((b) => b.texto_narracao.trim())
+      .join(" ");
     navigator.clipboard.writeText(fullScript);
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 2000);
@@ -87,7 +87,7 @@ export default function ScriptViewer({ blocks, onLaunchTeleprompter }: ScriptVie
             <Tv className="h-4 w-4 text-orange-500 animate-pulse" />
             Roteiro Estruturado Pronto
           </h4>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Leia direto da tela ou abra o modo estúdio.</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5">Copia o texto limpo sem tags, otimizado para o gerador de voz.</p>
         </div>
 
         <div className="flex items-center space-x-2.5">
