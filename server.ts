@@ -88,8 +88,39 @@ const scriptResponseSchema = {
   required: ["meta", "roteiro", "fatos_apurados", "fatos_nao_confirmados", "fontes_utilizadas", "prompts_imagem"]
 };
 
-// JSON Schema for SEO metadata response
-const metadataResponseSchema = {
+// JSON Schema for YouTube SEO metadata
+const youtubeMetadataSchema = {
+  type: Type.OBJECT,
+  properties: {
+    titulos_sugeridos_youtube: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING }
+    },
+    descricao_youtube: { type: Type.STRING },
+    tags_youtube: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING }
+    },
+    prompt_thumbnail: { type: Type.STRING }
+  },
+  required: ["titulos_sugeridos_youtube", "descricao_youtube", "tags_youtube", "prompt_thumbnail"]
+};
+
+// JSON Schema for Reels/Shorts metadata
+const reelsMetadataSchema = {
+  type: Type.OBJECT,
+  properties: {
+    legenda_instagram_tiktok: { type: Type.STRING },
+    hashtags: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING }
+    }
+  },
+  required: ["legenda_instagram_tiktok", "hashtags"]
+};
+
+// JSON Schema for Full metadata (YouTube + Reels)
+const completoMetadataSchema = {
   type: Type.OBJECT,
   properties: {
     titulos_sugeridos_youtube: {
@@ -268,20 +299,42 @@ app.post("/api/generate-metadata", async (req, res) => {
     }
     const currentDateStr = new Date().toLocaleDateString("pt-BR", { year: 'numeric', month: 'long', day: 'numeric' });
 
+    const { platform } = req.body;
+
+    let schemaToUse = completoMetadataSchema;
+    let targetPrompt = "";
+
+    if (platform === "youtube") {
+      schemaToUse = youtubeMetadataSchema;
+      targetPrompt = `Gere EXCLUSIVAMENTE os seguintes metadados de publicação para o YouTube com base neste roteiro:
+      1. 'titulos_sugeridos_youtube': Uma lista com exatamente 2 títulos persuasivos (clickbait de alta curiosidade de até 70 caracteres).
+      2. 'descricao_youtube': Uma descrição de 2 parágrafos rica em palavras-chave sobre o vídeo, otimizada para SEO.
+      3. 'tags_youtube': Uma lista de 10 a 12 tags/palavras-chave relevantes para SEO.
+      4. 'prompt_thumbnail': Um prompt de imagem detalhado em inglês focado em criar uma miniatura altamente clicável e chamativa (clickbait style, high contrast, dramatic details, text space) para Midjourney ou Leonardo AI.`;
+    } else if (platform === "reels") {
+      schemaToUse = reelsMetadataSchema;
+      targetPrompt = `Gere EXCLUSIVAMENTE os seguintes metadados de publicação para Reels/Shorts/TikTok com base neste roteiro:
+      1. 'legenda_instagram_tiktok': Uma legenda curta, instigante e chamativa de 1 a 2 linhas para redes rápidas.
+      2. 'hashtags': Uma lista de 5 a 6 hashtags relevantes em formato de string (sem o símbolo # no início).`;
+    } else {
+      schemaToUse = completoMetadataSchema;
+      targetPrompt = `Gere todos os metadados de publicação (YouTube + Redes Sociais) com base neste roteiro:
+      1. 'titulos_sugeridos_youtube': Uma lista com exatamente 2 títulos persuasivos (clickbait de alta curiosidade de até 70 caracteres).
+      2. 'descricao_youtube': Uma descrição de 2 parágrafos rica em palavras-chave sobre o vídeo, otimizada para SEO.
+      3. 'legenda_instagram_tiktok': Uma legenda curta, instigante e chamativa de 1 a 2 linhas para redes rápidas.
+      4. 'hashtags': Uma lista de 5 a 6 hashtags relevantes em formato de string (sem o símbolo # no início).
+      5. 'tags_youtube': Uma lista de 10 a 12 tags/palavras-chave relevantes para SEO.
+      6. 'prompt_thumbnail': Um prompt de imagem detalhado em inglês focado em criar uma miniatura altamente clicável e chamativa (clickbait style, high contrast, dramatic details, text space) para Midjourney ou Leonardo AI.`;
+    }
+
     const systemInstruction = `Você é um especialista em SEO e Marketing para YouTube, Instagram, TikTok e Facebook. Sua função é analisar o ROTEIRO de vídeo fornecido e gerar metadados otimizados para publicação.
     
     DIRETRIZES DE DATA E ÂNCORA TEMPORAL (CRÍTICO):
-    - A DATA ATUAL HOJE É: ${currentDateStr} (ano de 2026). Use este ano de 2026 como referência temporal do presente. Notícias que acabaram de acontecer são de 2026, não de anos anteriores como 2024. Nunca confunda a data das notícias recentes. NUNCA invente declarações, depoimentos ou citações que não estejam documentadas.
-    
-    Você DEVE preencher os seguintes campos seguindo as diretrizes:
-    1. 'titulos_sugeridos_youtube': Uma lista com 3 a 5 títulos altamente persuasivos (clickbait de curiosidade baseados no mistério/gancho do roteiro).
-    2. 'descricao_youtube': Uma descrição de 2 a 3 parágrafos rica em palavras-chave sobre o tema do vídeo, acompanhada de capítulos/timestamps sugeridos se achar pertinente.
-    3. 'legenda_instagram_tiktok': Uma legenda curta, envolvente e chamativa para redes de vídeo rápido.
-    4. 'hashtags': Uma lista de 5 a 8 hashtags relevantes em formato de string (sem o símbolo # no início, apenas a palavra).
-    5. 'tags_youtube': Uma lista de 10 a 15 palavras-chave relevantes para SEO no YouTube.
-    6. 'prompt_thumbnail': Um prompt de geração de imagem detalhado em inglês focado em criar uma miniatura altamente clicável e chamativa (clickbait style, high contrast, dramatic details, expressive characters, text space) para Midjourney ou Leonardo AI.`;
+    - A DATA ATUAL HOJE É: ${currentDateStr} (ano de 2026). Use este ano de 2026 como referência temporal do presente. Notícias que acabaram de acontecer são de 2026, não de anos anteriores como 2024. Nunca confunda a data das notícias recentes. NUNCA invente declarações, depoimentos ou citações que não estejam documentadas.`;
 
-    const userPrompt = `Gere os metadados de publicação para o seguinte roteiro de vídeo:
+    const userPrompt = `${targetPrompt}
+    
+    Roteiro para análise:
     "${scriptText}"`;
 
     const response = await clientToUse.models.generateContent({
@@ -290,7 +343,7 @@ app.post("/api/generate-metadata", async (req, res) => {
       config: {
         systemInstruction,
         responseMimeType: "application/json",
-        responseSchema: metadataResponseSchema,
+        responseSchema: schemaToUse,
         temperature: 0.7,
       },
     });

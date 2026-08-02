@@ -42,7 +42,7 @@ export default function App() {
   const [isConfigOpen, setIsConfigOpen] = useState(true);
   const [isGeneratingMetadata, setIsGeneratingMetadata] = useState(false);
 
-  const handleGenerateMetadata = async () => {
+  const handleGenerateMetadata = async (platform: "youtube" | "reels" | "completo") => {
     if (!activeScript) return;
     setIsGeneratingMetadata(true);
 
@@ -54,7 +54,7 @@ export default function App() {
       const res = await fetch("/api/generate-metadata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scriptText, apiKey }),
+        body: JSON.stringify({ scriptText, apiKey, platform }),
       });
 
       if (!res.ok) {
@@ -635,31 +635,45 @@ export default function App() {
                             <div className="p-4 bg-zinc-950 rounded-2xl border border-zinc-800 text-zinc-400">
                               <Share2 className="h-8 w-8 text-orange-500 animate-pulse" />
                             </div>
-                            <h3 className="text-base font-bold text-zinc-200">Metadados de Publicação (SEO, Tags e Thumbnail)</h3>
+                            <h3 className="text-base font-bold text-zinc-200">Metadados de Publicação</h3>
                             <p className="text-xs text-zinc-400 max-w-sm">
-                              Gostou do roteiro gerado? Clique no botão abaixo para gerar títulos de alta conversão, descrição otimizada, tags para YouTube e prompt de thumbnail.
+                              Gostou do roteiro gerado? Escolha para qual plataforma deseja gerar os metadados de publicação (SEO, copies e tags):
                             </p>
-                            <button
-                              disabled={isGeneratingMetadata}
-                              onClick={handleGenerateMetadata}
-                              className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white shadow transition-all cursor-pointer ${
-                                isGeneratingMetadata 
-                                  ? "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700" 
-                                  : "bg-orange-600 hover:bg-orange-500 border border-orange-500"
-                              }`}
-                            >
+                            
+                            <div className="flex flex-col gap-3 w-full max-w-sm mt-2">
                               {isGeneratingMetadata ? (
-                                <>
-                                  <div className="h-4 w-4 border-2 border-zinc-650 border-t-white rounded-full animate-spin" />
-                                  <span>Gerando Metadados SEO...</span>
-                                </>
+                                <div className="flex flex-col items-center justify-center py-4 space-y-3">
+                                  <div className="h-7 w-7 border-2 border-zinc-750 border-t-orange-500 rounded-full animate-spin" />
+                                  <span className="text-xs font-bold text-zinc-400 animate-pulse">Criando metadados de publicação...</span>
+                                </div>
                               ) : (
                                 <>
-                                  <Sparkles className="h-4 w-4" />
-                                  <span>Gerar Título, Tags, Copy & Thumbnail</span>
+                                  <button
+                                    onClick={() => handleGenerateMetadata("youtube")}
+                                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold text-white shadow border border-red-500/30 bg-red-950/40 hover:bg-red-900/60 hover:text-red-300 transition-all cursor-pointer"
+                                  >
+                                    <Youtube className="h-4 w-4 text-red-500" />
+                                    <span>Gerar Apenas para YouTube</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleGenerateMetadata("reels")}
+                                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold text-white shadow border border-pink-500/30 bg-pink-950/40 hover:bg-pink-900/60 hover:text-pink-300 transition-all cursor-pointer"
+                                  >
+                                    <Instagram className="h-4 w-4 text-pink-500" />
+                                    <span>Gerar Apenas para Reels / TikTok</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleGenerateMetadata("completo")}
+                                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold text-white shadow border border-orange-500 bg-orange-650 hover:bg-orange-600 transition-all cursor-pointer"
+                                  >
+                                    <Sparkles className="h-4 w-4" />
+                                    <span>Gerar Completo (Todas as Redes)</span>
+                                  </button>
                                 </>
                               )}
-                            </button>
+                            </div>
                           </div>
                         )}
                       </motion.div>

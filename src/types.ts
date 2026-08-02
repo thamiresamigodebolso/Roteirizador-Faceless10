@@ -11,10 +11,10 @@ export interface ImagePrompt {
 }
 
 export interface PublicationMetadata {
-  titulos_sugeridos_youtube: string[];
-  descricao_youtube: string;
-  legenda_instagram_tiktok: string;
-  hashtags: string[];
+  titulos_sugeridos_youtube?: string[];
+  descricao_youtube?: string;
+  legenda_instagram_tiktok?: string;
+  hashtags?: string[];
   tags_youtube?: string[];
   prompt_thumbnail?: string;
 }

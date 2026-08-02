@@ -102,7 +102,34 @@ var scriptResponseSchema = {
   },
   required: ["meta", "roteiro", "fatos_apurados", "fatos_nao_confirmados", "fontes_utilizadas", "prompts_imagem"]
 };
-var metadataResponseSchema = {
+var youtubeMetadataSchema = {
+  type: import_genai.Type.OBJECT,
+  properties: {
+    titulos_sugeridos_youtube: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    descricao_youtube: { type: import_genai.Type.STRING },
+    tags_youtube: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    },
+    prompt_thumbnail: { type: import_genai.Type.STRING }
+  },
+  required: ["titulos_sugeridos_youtube", "descricao_youtube", "tags_youtube", "prompt_thumbnail"]
+};
+var reelsMetadataSchema = {
+  type: import_genai.Type.OBJECT,
+  properties: {
+    legenda_instagram_tiktok: { type: import_genai.Type.STRING },
+    hashtags: {
+      type: import_genai.Type.ARRAY,
+      items: { type: import_genai.Type.STRING }
+    }
+  },
+  required: ["legenda_instagram_tiktok", "hashtags"]
+};
+var completoMetadataSchema = {
   type: import_genai.Type.OBJECT,
   properties: {
     titulos_sugeridos_youtube: {
@@ -261,19 +288,38 @@ app.post("/api/generate-metadata", async (req, res) => {
       return;
     }
     const currentDateStr = (/* @__PURE__ */ new Date()).toLocaleDateString("pt-BR", { year: "numeric", month: "long", day: "numeric" });
+    const { platform } = req.body;
+    let schemaToUse = completoMetadataSchema;
+    let targetPrompt = "";
+    if (platform === "youtube") {
+      schemaToUse = youtubeMetadataSchema;
+      targetPrompt = `Gere EXCLUSIVAMENTE os seguintes metadados de publica\xE7\xE3o para o YouTube com base neste roteiro:
+      1. 'titulos_sugeridos_youtube': Uma lista com exatamente 2 t\xEDtulos persuasivos (clickbait de alta curiosidade de at\xE9 70 caracteres).
+      2. 'descricao_youtube': Uma descri\xE7\xE3o de 2 par\xE1grafos rica em palavras-chave sobre o v\xEDdeo, otimizada para SEO.
+      3. 'tags_youtube': Uma lista de 10 a 12 tags/palavras-chave relevantes para SEO.
+      4. 'prompt_thumbnail': Um prompt de imagem detalhado em ingl\xEAs focado em criar uma miniatura altamente clic\xE1vel e chamativa (clickbait style, high contrast, dramatic details, text space) para Midjourney ou Leonardo AI.`;
+    } else if (platform === "reels") {
+      schemaToUse = reelsMetadataSchema;
+      targetPrompt = `Gere EXCLUSIVAMENTE os seguintes metadados de publica\xE7\xE3o para Reels/Shorts/TikTok com base neste roteiro:
+      1. 'legenda_instagram_tiktok': Uma legenda curta, instigante e chamativa de 1 a 2 linhas para redes r\xE1pidas.
+      2. 'hashtags': Uma lista de 5 a 6 hashtags relevantes em formato de string (sem o s\xEDmbolo # no in\xEDcio).`;
+    } else {
+      schemaToUse = completoMetadataSchema;
+      targetPrompt = `Gere todos os metadados de publica\xE7\xE3o (YouTube + Redes Sociais) com base neste roteiro:
+      1. 'titulos_sugeridos_youtube': Uma lista com exatamente 2 t\xEDtulos persuasivos (clickbait de alta curiosidade de at\xE9 70 caracteres).
+      2. 'descricao_youtube': Uma descri\xE7\xE3o de 2 par\xE1grafos rica em palavras-chave sobre o v\xEDdeo, otimizada para SEO.
+      3. 'legenda_instagram_tiktok': Uma legenda curta, instigante e chamativa de 1 a 2 linhas para redes r\xE1pidas.
+      4. 'hashtags': Uma lista de 5 a 6 hashtags relevantes em formato de string (sem o s\xEDmbolo # no in\xEDcio).
+      5. 'tags_youtube': Uma lista de 10 a 12 tags/palavras-chave relevantes para SEO.
+      6. 'prompt_thumbnail': Um prompt de imagem detalhado em ingl\xEAs focado em criar uma miniatura altamente clic\xE1vel e chamativa (clickbait style, high contrast, dramatic details, text space) para Midjourney ou Leonardo AI.`;
+    }
     const systemInstruction = `Voc\xEA \xE9 um especialista em SEO e Marketing para YouTube, Instagram, TikTok e Facebook. Sua fun\xE7\xE3o \xE9 analisar o ROTEIRO de v\xEDdeo fornecido e gerar metadados otimizados para publica\xE7\xE3o.
     
     DIRETRIZES DE DATA E \xC2NCORA TEMPORAL (CR\xCDTICO):
-    - A DATA ATUAL HOJE \xC9: ${currentDateStr} (ano de 2026). Use este ano de 2026 como refer\xEAncia temporal do presente. Not\xEDcias que acabaram de acontecer s\xE3o de 2026, n\xE3o de anos anteriores como 2024. Nunca confunda a data das not\xEDcias recentes. NUNCA invente declara\xE7\xF5es, depoimentos ou cita\xE7\xF5es que n\xE3o estejam documentadas.
+    - A DATA ATUAL HOJE \xC9: ${currentDateStr} (ano de 2026). Use este ano de 2026 como refer\xEAncia temporal do presente. Not\xEDcias que acabaram de acontecer s\xE3o de 2026, n\xE3o de anos anteriores como 2024. Nunca confunda a data das not\xEDcias recentes. NUNCA invente declara\xE7\xF5es, depoimentos ou cita\xE7\xF5es que n\xE3o estejam documentadas.`;
+    const userPrompt = `${targetPrompt}
     
-    Voc\xEA DEVE preencher os seguintes campos seguindo as diretrizes:
-    1. 'titulos_sugeridos_youtube': Uma lista com 3 a 5 t\xEDtulos altamente persuasivos (clickbait de curiosidade baseados no mist\xE9rio/gancho do roteiro).
-    2. 'descricao_youtube': Uma descri\xE7\xE3o de 2 a 3 par\xE1grafos rica em palavras-chave sobre o tema do v\xEDdeo, acompanhada de cap\xEDtulos/timestamps sugeridos se achar pertinente.
-    3. 'legenda_instagram_tiktok': Uma legenda curta, envolvente e chamativa para redes de v\xEDdeo r\xE1pido.
-    4. 'hashtags': Uma lista de 5 a 8 hashtags relevantes em formato de string (sem o s\xEDmbolo # no in\xEDcio, apenas a palavra).
-    5. 'tags_youtube': Uma lista de 10 a 15 palavras-chave relevantes para SEO no YouTube.
-    6. 'prompt_thumbnail': Um prompt de gera\xE7\xE3o de imagem detalhado em ingl\xEAs focado em criar uma miniatura altamente clic\xE1vel e chamativa (clickbait style, high contrast, dramatic details, expressive characters, text space) para Midjourney ou Leonardo AI.`;
-    const userPrompt = `Gere os metadados de publica\xE7\xE3o para o seguinte roteiro de v\xEDdeo:
+    Roteiro para an\xE1lise:
     "${scriptText}"`;
     const response = await clientToUse.models.generateContent({
       model: "gemini-2.5-flash",
@@ -281,7 +327,7 @@ app.post("/api/generate-metadata", async (req, res) => {
       config: {
         systemInstruction,
         responseMimeType: "application/json",
-        responseSchema: metadataResponseSchema,
+        responseSchema: schemaToUse,
         temperature: 0.7
       }
     });
